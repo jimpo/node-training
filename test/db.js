@@ -1,12 +1,4 @@
-'use strict'
-
-var chai = require('chai');
-var sinon = require('sinon');
-var should = chai.should();
-
 var db = require('../lib/db');
-
-chai.use(require('sinon-chai'));
 
 
 describe('db', function () {
