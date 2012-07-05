@@ -1,5 +1,7 @@
 var Backbone = require('backbone');
+
 var db = require('../lib/db');
+var models = require('../lib/models');
 
 
 describe('db', function () {
@@ -45,15 +47,15 @@ describe('Backbone', function () {
 
     describe('#sync()', function () {
         it("should fetch document on 'read' method", function (done) {
-            var model = Backbone.Model.extend({
+            var model = new models.BaseModel({
                 _id: 'pikachu',
             });
             var pikachu = {
-                id: 'pikachu',
+                _id: 'pikachu',
                 type: 'electric',
                 species: 'mouse',
             };
-            sinon.stub(db, 'get').withArgs('pikachu').yields(pikachu);
+            sinon.stub(db, 'get').withArgs('pikachu').yields(null, pikachu);
             Backbone.sync('read', model, {
                 error: done,
                 success: function (res) {
