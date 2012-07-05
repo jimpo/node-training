@@ -46,15 +46,16 @@ describe('Backbone', function () {
     });
 
     describe('#sync()', function () {
+        var pikachu = {
+            _id: 'pikachu',
+            type: 'electric',
+            species: 'mouse',
+        };
+
         it("should fetch document on 'read' method", function (done) {
             var model = new models.BaseModel({
                 _id: 'pikachu',
             });
-            var pikachu = {
-                _id: 'pikachu',
-                type: 'electric',
-                species: 'mouse',
-            };
             sinon.stub(db, 'get').withArgs('pikachu').yields(null, pikachu);
             Backbone.sync('read', model, {
                 error: done,
@@ -64,5 +65,18 @@ describe('Backbone', function () {
                 },
             });
         });
+
+        it("should save document on 'create' method", function (done) {
+            var model = new models.BaseModel(pikachu);
+            sinon.stub(db, 'save').withArgs(pikachu).yields(null, {ok:true});
+            Backbone.sync('create', model, {
+                error: done,
+                success: function (res) {
+                    res.ok.should.be.ok;
+                    done();
+                },
+            });
+        });
     });
+
 });
