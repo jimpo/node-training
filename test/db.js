@@ -41,17 +41,18 @@ describe('db', function () {
 });
 
 describe('Backbone', function () {
+    var pikachu;
+
     before(function (done) {
         db.init(null, done);
-    });
-
-    describe('#sync()', function () {
-        var pikachu = {
+        pikachu = {
             _id: 'pikachu',
             type: 'electric',
             species: 'mouse',
         };
+    });
 
+    describe('#sync()', function () {
         it("should fetch document on 'read' method", function (done) {
             var model = new models.BaseModel({
                 _id: 'pikachu',
@@ -70,6 +71,36 @@ describe('Backbone', function () {
             var model = new models.BaseModel(pikachu);
             sinon.stub(db, 'save').withArgs(pikachu).yields(null, {ok:true});
             Backbone.sync('create', model, {
+                error: done,
+                success: function (res) {
+                    res.ok.should.be.ok;
+                    done();
+                },
+            });
+        });
+
+        it("should merge document on 'update' method", function (done) {
+            pikachu.evolution = 'riachu';
+            var model = new models.BaseModel(pikachu);
+            sinon.stub(db, 'merge').withArgs('pikachu', pikachu)
+                .yields(null, {ok:true});
+            Backbone.sync('update', model, {
+                error: done,
+                success: function (res) {
+                    res.ok.should.be.ok;
+                    done();
+                },
+            });
+        });
+
+        it("should destroy document on 'delete' method", function (done) {
+            var model = new models.BaseModel({
+                '_id': 'pikachu',
+                '_rev': '11-3aaa2511b8733b3712eef1f60f3118a4',
+            });
+            sinon.stub(db, 'remove').withArgs('pikachu', model.get('_rev'))
+                .yields(null, {ok:true, id: 'pikachu', rev: model.get('_rev')});
+            Backbone.sync('delete', model, {
                 error: done,
                 success: function (res) {
                     res.ok.should.be.ok;
