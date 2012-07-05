@@ -1,9 +1,11 @@
 'use strict'
 
-var express = require('express')
+var express = require('express');
 
+var route = require('./lib/route');
 
 var app = express.createServer();
+
 
 app.configure(function () {
     app.set('views', __dirname + '/views');
@@ -14,8 +16,6 @@ app.configure(function () {
     app.use(express.static(__dirname + '/public'));
 });
 
-app.get('/', function (req, res, next) {
-    res.render('home');
-});
+route.init(app);
 
 app.listen(3000);
