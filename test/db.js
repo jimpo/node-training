@@ -1,5 +1,3 @@
-var Backbone = require('backbone');
-
 var db = require('../lib/db');
 var models = require('../lib/models');
 
@@ -39,7 +37,7 @@ describe('db', function () {
         });
     });
 });
-
+/*
 describe('Backbone', function () {
     var pikachu;
 
@@ -111,3 +109,4 @@ describe('Backbone', function () {
     });
 
 });
+*/
