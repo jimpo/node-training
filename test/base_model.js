@@ -111,6 +111,25 @@ describe('models.BaseModel', function () {
             pikachu.isNew().should.be.false;
         });
     });
+
+    describe('#isValid()', function () {
+        it('should be invalid on false condition', function () {
+            pikachu.validates(function () {
+                return this.get('evolution') === 'riachu';
+            });
+            pikachu.validates(function () {
+                return this.get('type') === 'electric';
+            });
+            pikachu.isValid().should.be.false;
+        });
+
+        it('should be valid on only true conditions', function () {
+            pikachu.validates(function () {
+                return this.get('type') === 'electric';
+            });
+            pikachu.isValid().should.be.true;
+        });
+    });
 });
 
 describe('models.BaseModel persistence', function () {
