@@ -36,6 +36,7 @@ describe('models.BaseModel', function () {
         it('should set type if exists', function () {
             pikachu = new models.BaseModel({}, 'pokemon');
             pikachu.get('type').should.equal('pokemon');
+            pikachu.isValid().should.be.true;
         });
 
         it('should make model invalid on type mismatch', function () {

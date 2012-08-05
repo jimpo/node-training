@@ -3,14 +3,24 @@ extends ../layout
 block content
   h1 Create an account
   form.well.form-horizontal(method='POST', action='/users')
-    - if (error)
-      .alert.alert-error= error
+    - if (errors)
+      .alert.alert-error= errors
 
     fieldset
       .control-group
+        label.control-label Name
+        .controls
+          input(type='text', name='doc[firstname]', value=doc.name)
+
+      .control-group
+        label.control-label Email
+        .controls
+          input(type='text', name='doc[email]', value=doc.email)
+
+      .control-group
         label.control-label Username
         .controls
-          input(type='text', name='doc[_id]')
+          input(type='text', name='doc[_id]', value=doc._id)
 
       .control-group
         label.control-label Password
@@ -21,16 +31,6 @@ block content
         label.control-label Confirm password
         .controls
           input(type='password', name='passwd_confirm')
-
-      .control-group
-        label.control-label First name
-        .controls
-          input(type='text', name='doc[firstname]')
-
-      .control-group
-        label.control-label Last name
-        .controls
-          input(type='text', name='doc[lastname]')
 
       .form-actions
         input.btn.btn-large.btn-primary(type='submit')

@@ -2,7 +2,7 @@
 
 var express = require('express');
 
-var config = require('./config').options;
+var config = require('./config');
 var db = require('./lib/db');
 var route = require('./lib/route');
 
