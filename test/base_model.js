@@ -205,6 +205,16 @@ describe('models.BaseModel persistence', function () {
                 done(err);
             });
         });
+
+        it('should fail if model is invalid', function (done) {
+            var model = new models.BaseModel(pikachu);
+            model.validates(function () { return false; });
+            mockDb.expects('save').never();
+            model.save(function (err) {
+                should.exist(err);
+                done();
+            });
+        });
     });
 
     describe('#destroy()', function () {
