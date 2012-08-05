@@ -2,6 +2,7 @@
 
 var should = require('chai').should();
 
+var db = require('../lib/db');
 var models = require('../lib/models');
 
 
@@ -108,6 +109,60 @@ describe('models.BaseModel', function () {
         it('should be false if model has id and rev', function () {
             pikachu.attributes._rev = 'kanto version';
             pikachu.isNew().should.be.false;
+        });
+    });
+});
+
+describe('models.BaseModel persistence', function () {
+    var pikachu, mockDb;
+
+    beforeEach(function (done) {
+        pikachu = {
+            _id: 'pikachu',
+            type: 'electric',
+            species: 'mouse',
+        };
+
+        var couchdb = {
+            exists: sinon.stub().yields(null, true),
+            get: function(){},
+            save: function(){},
+        };
+        db.init(couchdb, done);
+        mockDb = sinon.mock(db);
+    });
+
+    afterEach(function () {
+        mockDb.verify();
+    });
+
+    describe('#fetch()', function () {
+        it('should retrieve object from database', function (done) {
+            var model = new models.BaseModel({
+                _id: 'pikachu',
+            });
+            mockDb.expects('get').withArgs('pikachu').yields(null, pikachu);
+            model.fetch(function (err) {
+                model.attributes.should.deep.equal(pikachu);
+                done(err);
+            });
+        });
+    });
+
+    describe('#save()', function () {
+        it('should create without id', function (done) {
+            var model = new models.BaseModel(pikachu);
+            var res = {
+                ok: true,
+                _id: 'id',
+                _rev: 'rev',
+            };
+            mockDb.expects('save').once().withArgs(pikachu).yields(null, res);
+            model.save(function (err) {
+                model.has('_id').should.be.true;
+                model.has('_rev').should.be.true;
+                done(err);
+            });
         });
     });
 });
