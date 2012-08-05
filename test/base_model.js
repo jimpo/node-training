@@ -124,22 +124,23 @@ describe('models.BaseModel', function () {
         });
     });
 
-    describe('#isValid()', function () {
-        it('should be invalid on false condition', function () {
-            pikachu.validates(function () {
+    describe('#validationErrors()', function () {
+        it('should return error messages for false conditions', function () {
+            pikachu.validates('Evolution is not riachu', function () {
                 return this.get('evolution') === 'riachu';
             });
-            pikachu.validates(function () {
+            pikachu.validates('Type is not electric', function () {
                 return this.get('type') === 'electric';
             });
-            pikachu.isValid().should.be.false;
+            pikachu.validationErrors().should.deep.equal(
+                ['Evolution is not riachu']);
         });
 
-        it('should be valid on only true conditions', function () {
-            pikachu.validates(function () {
+        it('should not exist if validations succeed', function () {
+            pikachu.validates('Type is not electric', function () {
                 return this.get('type') === 'electric';
             });
-            pikachu.isValid().should.be.true;
+            should.not.exist(pikachu.validationErrors());
         });
     });
 });
@@ -220,10 +221,10 @@ describe('models.BaseModel persistence', function () {
 
         it('should fail if model is invalid', function (done) {
             var model = new models.BaseModel(pikachu);
-            model.validates(function () { return false; });
+            model.validates('Oh no', function () { return false; });
             mockDb.expects('save').never();
             model.save(function (err) {
-                should.exist(err);
+                err.should.deep.equal(['Oh no']);
                 done();
             });
         });
