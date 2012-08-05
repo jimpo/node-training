@@ -7,7 +7,6 @@
     },
     "dependencies": {
         "async": "0.1.x",
-        "backbone": "0.9.x",
         "bcrypt": "0.7.x",
         "chai": "1.1.x",
         "cradle": "0.6.x",
