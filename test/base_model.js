@@ -127,6 +127,7 @@ describe('models.BaseModel persistence', function () {
             exists: sinon.stub().yields(null, true),
             get: function(){},
             save: function(){},
+            remove: function(){},
         };
         db.init(couchdb, done);
         mockDb = sinon.mock(db);
@@ -151,16 +152,59 @@ describe('models.BaseModel persistence', function () {
 
     describe('#save()', function () {
         it('should create without id', function (done) {
+            delete pikachu._id;
             var model = new models.BaseModel(pikachu);
             var res = {
                 ok: true,
                 _id: 'id',
                 _rev: 'rev',
             };
-            mockDb.expects('save').once().withArgs(pikachu).yields(null, res);
+            mockDb.expects('save').once()
+                .withArgs(undefined, undefined, pikachu)
+                .yields(null, res);
             model.save(function (err) {
                 model.has('_id').should.be.true;
                 model.has('_rev').should.be.true;
+                done(err);
+            });
+        });
+
+        it('should update with id and rev', function (done) {
+            pikachu._rev = 'rev';
+            var model = new models.BaseModel(pikachu);
+            var res = {
+                ok: true,
+                _id: 'pikachu',
+                _rev: 'rev2',
+            };
+            mockDb.expects('save').once()
+                .withArgs('pikachu', 'rev', pikachu)
+                .yields(null, res);
+            model.save(function (err) {
+                model.id().should.equal('pikachu');
+                model.rev().should.not.equal(pikachu._rev);
+                done(err);
+            });
+        });
+    });
+
+    describe('#destroy()', function () {
+        it('should delete with id and rev', function (done) {
+            var model = new models.BaseModel({
+                _id: 'pikachu',
+                _rev: 'rev',
+            });
+            var res = {
+                ok: true,
+                _id: 'pikachu',
+                _rev: 'rev2',
+            };
+            mockDb.expects('remove').once()
+                .withArgs('pikachu', 'rev')
+                .yields(null, res);
+            model.destroy(function (err) {
+                model.id().should.equal('pikachu');
+                model.rev().should.not.equal(pikachu._rev);
                 done(err);
             });
         });
