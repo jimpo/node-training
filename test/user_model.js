@@ -13,6 +13,12 @@ describe('User', function () {
         });
     });
 
+    describe('constructor', function () {
+        it('should be "user" type by default', function () {
+            user.get('type').should.equal('user');
+        });
+    });
+
     describe('#setPassword()', function () {
         it("should set 'passwd_hash' attribute", function (done) {
             user.has('passwd_hash').should.be.false;

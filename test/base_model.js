@@ -32,6 +32,17 @@ describe('models.BaseModel', function () {
                should.exist(pikachu.attributes);
                pikachu.attributes.should.deep.equal({});
            });
+
+        it('should set type if exists', function () {
+            pikachu = new models.BaseModel({}, 'pokemon');
+            pikachu.get('type').should.equal('pokemon');
+        });
+
+        it('should make model invalid on type mismatch', function () {
+            pikachu = new models.BaseModel({}, 'pokemon');
+            pikachu.set('type', 'not pokemon');
+            pikachu.isValid().should.be.false;
+        });
     });
 
     describe('#get()', function () {
