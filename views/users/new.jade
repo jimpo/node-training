@@ -4,7 +4,10 @@ block content
   h1 Create an account
   form.well.form-horizontal(method='POST', action='/users')
     - if (errors)
-      .alert.alert-error= errors
+      .alert.alert-error
+        ul
+          - each error in errors
+            li= capitalize(error)
 
     fieldset
       .control-group

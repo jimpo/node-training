@@ -6,16 +6,36 @@ var models = require('../lib/models')
 describe('User', function () {
     var user;
 
-    before(function () {
+    beforeEach(function () {
         user = new models.User({
             _id: 'pikachu',
-            species: 'mouse',
+            name: 'Pikachu',
+            email: 'pikachu@pika.com',
         });
     });
 
     describe('constructor', function () {
         it('should be "user" type by default', function () {
             user.get('type').should.equal('user');
+            user.isValid().should.be.true;
+        });
+
+        it('should be invalid without _id', function () {
+            user.unset('_id');
+            user.validationErrors().should.deep.equal(
+                ['_id is required']);
+        });
+
+        it('should be invalid without name', function () {
+            user.unset('name');
+            user.validationErrors().should.deep.equal(
+                ['name is required']);
+        });
+
+        it('should be invalid with bad email format', function () {
+            user.set('email', 'not an email');
+            user.validationErrors().should.deep.equal(
+                ['email does not have correct format']);
         });
     });
 

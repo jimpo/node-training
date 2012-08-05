@@ -5,6 +5,7 @@ var express = require('express');
 var config = require('./config');
 var db = require('./lib/db');
 var route = require('./lib/route');
+var helpers = require('./lib/helpers');
 
 var app = express.createServer();
 
@@ -15,6 +16,7 @@ app.configure(function () {
     app.set('view options', {
         layout: false,
     });
+    app.helpers(helpers);
     app.use(express.static(__dirname + '/public'));
     app.use(express.bodyParser());
     app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
