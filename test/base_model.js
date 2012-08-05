@@ -4,6 +4,7 @@ var should = require('chai').should();
 
 var db = require('../lib/db');
 var models = require('../lib/models');
+var pred = require('../lib/util/predication');
 
 
 describe('models.BaseModel', function () {
@@ -141,6 +142,11 @@ describe('models.BaseModel', function () {
                 return this.get('type') === 'electric';
             });
             should.not.exist(pikachu.validationErrors());
+        });
+
+        it('should use matching validation', function () {
+            pikachu.validates(pred.matches('species', /mouse/));
+            pikachu.isValid().should.be.true;
         });
     });
 });
