@@ -126,8 +126,7 @@ describe('models.BaseModel', function () {
         it('should return a validation with arguments', function () {
             var validation = pikachu.validates('species', 'Error message');
             validation.name.should.equal('Validation');
-            validation.target.should.equal('species');
-            validation.message.should.equal('Error message');
+            validation.property.should.equal('species');
         });
     });
 
