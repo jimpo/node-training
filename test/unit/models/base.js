@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var db = require('db');
 var models = require('models');
@@ -8,6 +8,7 @@ describe('models.BaseModel', function () {
     var pikachu;
 
     beforeEach(function () {
+        models.BaseModel.prototype.name = 'electric';
         pikachu = new models.BaseModel({
             _id: 'pikachu',
             type: 'electric',
@@ -24,21 +25,21 @@ describe('models.BaseModel', function () {
             });
         });
 
-        it('should initialize attributes to emtpy object otherwise',
+        it('should initialize attributes to empty object otherwise',
            function () {
                pikachu = new models.BaseModel();
                expect(pikachu.attributes).to.exist;
-               pikachu.attributes.should.deep.equal({});
+               pikachu.attributes.should.deep.equal({type: 'electric'});
            });
 
         it('should set type if exists', function () {
-            pikachu = new models.BaseModel({}, 'pokemon');
-            pikachu.get('type').should.equal('pokemon');
+            pikachu = new models.BaseModel({});
+            pikachu.get('type').should.equal('electric');
             pikachu.isValid().should.be.true;
         });
 
         it('should make model invalid on type mismatch', function () {
-            pikachu = new models.BaseModel({}, 'pokemon');
+            pikachu = new models.BaseModel({});
             pikachu.set('type', 'not pokemon');
             pikachu.isValid().should.be.false;
         });
@@ -156,6 +157,7 @@ describe('models.BaseModel persistence', function () {
     var pikachu, mock;
 
     beforeEach(function () {
+        models.BaseModel.prototype.name = 'electric';
         pikachu = {
             _id: 'pikachu',
             type: 'electric',
