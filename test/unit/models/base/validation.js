@@ -3,7 +3,7 @@
 var validator = require('validator');
 var _ = require('underscore');
 
-var Validation = require('util/validation');
+var Validation = require('models/base/validation');
 
 
 describe('Validation', function () {

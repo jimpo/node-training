@@ -1,6 +1,5 @@
 'use strict'
 
-var models = require('../lib/models')
 
 /*
 describe('User', function () {
