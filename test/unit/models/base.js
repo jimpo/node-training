@@ -1,8 +1,7 @@
 'use strict'
 
-var db = require('../lib/db');
-var models = require('../lib/models');
-var pred = require('../lib/util/predication');
+var db = require('db');
+var models = require('models');
 
 
 describe('models.BaseModel', function () {
@@ -123,30 +122,34 @@ describe('models.BaseModel', function () {
         });
     });
 
-        /*
-        it('should return error messages for false conditions', function () {
-            pikachu.validates('Evolution is not riachu', function () {
-                return this.get('evolution') === 'riachu';
-            });
-            pikachu.validates('Type is not electric', function () {
-                return this.get('type') === 'electric';
-            });
-            pikachu.validationErrors().should.deep.equal(
-                ['Evolution is not riachu']);
+    describe('#validates()', function () {
+        it('should return a validation with arguments', function () {
+            var validation = pikachu.validates('species', 'Error message');
+            validation.name.should.equal('Validation');
+            validation.target.should.equal('species');
+            validation.message.should.equal('Error message');
+        });
+    });
+
+    describe('#errors()', function () {
+        it('should call check on validators with attributes', function () {
+            var validation = pikachu.validates('species', 'Error message');
+            var mock = sinon.mock(validation);
+            mock.expects('check').withArgs(pikachu.attributes);
+            pikachu.errors();
+            mock.verify();
         });
 
         it('should not exist if validations succeed', function () {
-            pikachu.validates('Type is not electric', function () {
-                return this.get('type') === 'electric';
-            });
-            expect(pikachu.validationErrors()).not.to.exist;
+            sinon.stub(pikachu.validates(), 'check').returns();
+            expect(pikachu.errors()).not.to.exist;
         });
 
-        it('should use matching validation', function () {
-            pikachu.validates(pred.matches('species', /mouse/));
-            pikachu.isValid().should.be.true;
+        it('should not exist if validations succeed', function () {
+            sinon.stub(pikachu.validates(), 'check').returns('Error 1');
+            sinon.stub(pikachu.validates(), 'check').returns('Error 2');
+            pikachu.errors().should.deep.equal(['Error 1', 'Error 2']);
         });
-        */
     });
 });
 
@@ -253,7 +256,7 @@ describe('models.BaseModel persistence', function () {
 
         it('should fail if model is invalid', function (done) {
             var model = new models.BaseModel(pikachu);
-            model.validates('Oh no', function () { return false; });
+            sinon.stub(model, 'errors').returns(['Oh no']);
             mock.expects('insert').never();
             model.save(function (err) {
                 err.should.deep.equal(['Oh no']);
