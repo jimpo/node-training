@@ -4,6 +4,24 @@ var Validation = require('util/validation');
 
 
 describe('Validation', function () {
+    describe('constructor', function () {
+        it('should use given error message', function () {
+            var validation = new Validation('target', 'Error message');
+            validation.message.should.equal('Error message');
+        });
+
+        it('should set default error message if there is none', function () {
+            var validation = new Validation('target');
+            expect(validation.message).to.exist;
+        });
+
+        it('should validate existence if no validator is given', function () {
+            var validation = new Validation('target');
+            validation.validator().should.be.false;
+            validation.validator(false).should.be.true;
+        });
+    });
+
     describe('#check()', function () {
         it('should run validation function', function () {
             var validator = sinon.spy();
