@@ -1,6 +1,7 @@
 'use strict';
 
-var validators = require('validator').validators;
+var validator = require('validator');
+var _ = require('underscore');
 
 var Validation = require('util/validation');
 
@@ -10,11 +11,6 @@ describe('Validation', function () {
         it('should use given error message', function () {
             var validation = new Validation('target', 'Error message');
             validation.message.should.equal('Error message');
-        });
-
-        it('should set default error message if there is none', function () {
-            var validation = new Validation('target');
-            expect(validation.message).to.exist;
         });
 
         it('should validate existence if no validator is given', function () {
@@ -45,29 +41,25 @@ describe('Validation', function () {
             expect(validation.check()).not.to.exist;
         });
 
-        it('should return undefined if validator succeeds', function () {
-            var validation = new Validation(
-                'target', 'Error message', function () { return true; });
-            expect(validation.check()).not.to.exist;
-        });
-
         it('should return error message if validator fails', function () {
             var validation = new Validation(
                 'target', 'Error message', function () { return false; });
             validation.check().should.equal('Error message');
+        });
+
+        it('should return default error message if there is none', function () {
+            var validation = new Validation(
+                'target', undefined, function () { return false; });
+            expect(validation.check()).to.exist;
         });
     });
 
     describe('validators', function () {
         it('should respond to validator functions', function () {
             var validation = new Validation('target');
-            // Verify a subset of the node-validator validators are present
-            validation.should.respondTo('isEmail');
-            validation.should.respondTo('isUrl');
-            validation.should.respondTo('isIP');
-            validation.should.respondTo('regex');
-            validation.should.respondTo('equals');
-            validation.should.respondTo('contains');
+            _.each(_.keys(validator.validators), function (functionName) {
+                validation.should.respondTo(functionName);
+            });
         });
 
         it('should replace validator function when node validator is called',
@@ -77,5 +69,11 @@ describe('Validation', function () {
                validation.validator('ac').should.be.false;
                validation.validator('ab').should.be.true;
            });
+
+        it('should reset default error with more appropriate one', function () {
+            var validation = new Validation('target');
+            validation.contains('b');
+            validation.check().should.equal(validator.defaultError.contains);
+        });
     });
 });
