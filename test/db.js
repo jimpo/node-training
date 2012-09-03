@@ -1,7 +1,33 @@
+'use strict';
+
+var nano = require('nano');
+var sinon = require('sinon');
+
 var db = require('../lib/db');
-var models = require('../lib/models');
 
 
+describe('db', function () {
+    describe('#init()', function () {
+        var nano;
+
+        beforeEach(function () {
+            nano = db.connect();
+        });
+
+        it('should check if the database exists', function (done) {
+            var mock = sinon.mock(nano.db);
+            mock.expects('get').yields();
+            db.init(nano, function (err) {
+                expect(err).not.to.exist;
+                mock.verify();
+                done();
+            });
+        });
+    });
+});
+
+
+/*
 describe('db', function () {
     describe('#init()', function () {
         it('should check that database exists', function (done) {
@@ -37,3 +63,4 @@ describe('db', function () {
         });
     });
 });
+*/

@@ -7,16 +7,13 @@ var db = require('./lib/db');
 var route = require('./lib/route');
 var helpers = require('./lib/helpers');
 
-var app = express.createServer();
+var app = express();
 
 
 app.configure(function () {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
-    app.set('view options', {
-        layout: false,
-    });
-    app.helpers(helpers);
+    app.locals(helpers);
     app.use(express.static(__dirname + '/public'));
     app.use(express.bodyParser());
     app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
