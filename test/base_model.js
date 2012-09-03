@@ -1,7 +1,5 @@
 'use strict'
 
-var should = require('chai').should();
-
 var db = require('../lib/db');
 var models = require('../lib/models');
 var pred = require('../lib/util/predication');
@@ -30,7 +28,7 @@ describe('models.BaseModel', function () {
         it('should initialize attributes to emtpy object otherwise',
            function () {
                pikachu = new models.BaseModel();
-               should.exist(pikachu.attributes);
+               expect(pikachu.attributes).to.exist;
                pikachu.attributes.should.deep.equal({});
            });
 
@@ -49,12 +47,12 @@ describe('models.BaseModel', function () {
 
     describe('#get()', function () {
         it('should return attribute if present', function () {
-            should.exist(pikachu.get('species'));
+            expect(pikachu.get('species')).to.exist;
             pikachu.get('species').should.equal('mouse');
         });
 
         it('should return undefined unless present', function () {
-            should.not.exist(pikachu.get('fake field'));
+            expect(pikachu.get('fake field')).not.to.exist;
         });
     });
 
@@ -141,7 +139,7 @@ describe('models.BaseModel', function () {
             pikachu.validates('Type is not electric', function () {
                 return this.get('type') === 'electric';
             });
-            should.not.exist(pikachu.validationErrors());
+            expect(pikachu.validationErrors()).not.to.exist;
         });
 
         it('should use matching validation', function () {
@@ -154,7 +152,7 @@ describe('models.BaseModel', function () {
 describe('models.BaseModel persistence', function () {
     var pikachu, mock;
 
-    beforeEach(function (done) {
+    beforeEach(function () {
         pikachu = {
             _id: 'pikachu',
             type: 'electric',
@@ -164,12 +162,42 @@ describe('models.BaseModel persistence', function () {
         db.get = function(){};
         db.insert = function(){};
         db.destroy = function(){};
+        db.head = function(){};
         mock = sinon.mock(db);
-        db.init(null, done);
     });
 
     afterEach(function () {
         mock.verify();
+    });
+
+    describe('#exists()', function () {
+        it('should return revision if object exists', function (done) {
+            var model = new models.BaseModel({
+                _id: 'pikachu',
+            });
+            var headers = {etag: '"rev"'};
+            mock.expects('head').withArgs('pikachu')
+                .yields(null, null, headers);
+            model.exists(function (err, revision) {
+                expect(err).not.to.exist;
+                revision.should.equal('rev');
+                done();
+            });
+        });
+
+        it("should be falsy if object doesn't exist", function (done) {
+            var model = new models.BaseModel({
+                _id: 'pikachu',
+            });
+            var error = new Error;
+            error.status_code = 404;
+            mock.expects('head').withArgs('pikachu').yields(error);
+            model.exists(function (err, revision) {
+                expect(err).not.to.exist;
+                expect(revision).not.to.be.ok;
+                done();
+            });
+        });
     });
 
     describe('#fetch()', function () {
