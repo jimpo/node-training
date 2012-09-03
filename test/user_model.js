@@ -27,7 +27,7 @@ describe('User', function () {
         });
 
         it('should be invalid without name', function () {
-            user.unset('name');
+            user.set('name', '');
             user.validationErrors().should.deep.equal(
                 ['name is required']);
         });
