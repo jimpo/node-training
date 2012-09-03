@@ -15,27 +15,24 @@ describe('User', function () {
     });
 
     describe('constructor', function () {
-        it('should be "user" type by default', function () {
-            user.get('type').should.equal('user');
+        it('should be "User" type by default', function () {
+            user.get('type').should.equal('User');
             user.isValid().should.be.true;
         });
 
         it('should be invalid without _id', function () {
             user.unset('_id');
-            user.validationErrors().should.deep.equal(
-                ['_id is required']);
+            user.errors().should.deep.equal(['Username is required']);
         });
 
         it('should be invalid without name', function () {
             user.set('name', '');
-            user.validationErrors().should.deep.equal(
-                ['name is required']);
+            user.errors().should.deep.equal(['Name is required']);
         });
 
         it('should be invalid with bad email format', function () {
             user.set('email', 'not an email');
-            user.validationErrors().should.deep.equal(
-                ['email does not have correct format']);
+            user.errors().should.be.ok;
         });
     });
 /*
