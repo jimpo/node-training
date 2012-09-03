@@ -35,33 +35,27 @@ describe('db', function () {
                 done();
             });
         });
-    });
-});
-
-
-/*
-describe('db', function () {
-
-            var mockDb = {
-                exists: sinon.stub().yields(null, false),
-                create: sinon.stub().yields(),
-            };
-            db.init(mockDb, function (err) {
-                mockDb.create.should.have.been.called;
-                done(err);
-            });
-        });
 
         it('should not create if it already exists', function (done) {
-            var mockDb = {
-                exists: sinon.stub().yields(null, true),
-                create: sinon.stub().yields(),
-            };
-            db.init(mockDb, function (err) {
-                mockDb.create.should.not.have.been.called;
-                done(err);
+            sinon.stub(nano.db, 'get').yields();
+            var mock = sinon.mock(nano.db);
+            mock.expects('create').never();
+            db.init(nano, function (err) {
+                expect(err).not.to.exist;
+                mock.verify();
+                done();
+            });
+        });
+
+        it('should respond to database methods', function (done) {
+            sinon.stub(nano.db, 'get').yields();
+            db.init(nano, function (err) {
+                db.should.respondTo('insert');
+                db.should.respondTo('destroy');
+                db.should.respondTo('get');
+                db.should.respondTo('view');
+                done();
             });
         });
     });
 });
-*/
