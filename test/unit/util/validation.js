@@ -1,5 +1,7 @@
 'use strict';
 
+var validators = require('validator').validators;
+
 var Validation = require('util/validation');
 
 
@@ -54,5 +56,26 @@ describe('Validation', function () {
                 'target', 'Error message', function () { return false; });
             validation.check().should.equal('Error message');
         });
+    });
+
+    describe('validators', function () {
+        it('should respond to validator functions', function () {
+            var validation = new Validation('target');
+            // Verify a subset of the node-validator validators are present
+            validation.should.respondTo('isEmail');
+            validation.should.respondTo('isUrl');
+            validation.should.respondTo('isIP');
+            validation.should.respondTo('regex');
+            validation.should.respondTo('equals');
+            validation.should.respondTo('contains');
+        });
+
+        it('should replace validator function when node validator is called',
+           function () {
+               var validation = new Validation('target');
+               validation.contains('b');
+               validation.validator('ac').should.be.false;
+               validation.validator('ab').should.be.true;
+           });
     });
 });
