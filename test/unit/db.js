@@ -3,8 +3,8 @@
 var nano = require('nano');
 var sinon = require('sinon');
 
-var config = require('../config');
-var db = require('../lib/db');
+var config = require('../../config');
+var db = require('db');
 
 
 describe('db', function () {
