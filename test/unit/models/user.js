@@ -35,7 +35,7 @@ describe('User', function () {
             user.errors().should.be.ok;
         });
     });
-/*
+
     describe('#setPassword()', function () {
         it("should set 'passwd_hash' attribute", function (done) {
             user.has('passwd_hash').should.be.false;
@@ -68,5 +68,4 @@ describe('User', function () {
             });
         });
     });
-*/
 });
