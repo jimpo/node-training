@@ -2,7 +2,7 @@
 
 var models = require('../lib/models')
 
-
+/*
 describe('User', function () {
     var user;
 
@@ -72,3 +72,4 @@ describe('User', function () {
         });
     });
 });
+*/

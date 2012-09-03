@@ -152,7 +152,7 @@ describe('models.BaseModel', function () {
 });
 
 describe('models.BaseModel persistence', function () {
-    var pikachu, mockDb;
+    var pikachu, mock;
 
     beforeEach(function (done) {
         pikachu = {
@@ -161,18 +161,15 @@ describe('models.BaseModel persistence', function () {
             species: 'mouse',
         };
 
-        var couchdb = {
-            exists: sinon.stub().yields(null, true),
-            get: function(){},
-            save: function(){},
-            remove: function(){},
-        };
-        db.init(couchdb, done);
-        mockDb = sinon.mock(db);
+        db.get = function(){};
+        db.insert = function(){};
+        db.destroy = function(){};
+        mock = sinon.mock(db);
+        db.init(null, done);
     });
 
     afterEach(function () {
-        mockDb.verify();
+        mock.verify();
     });
 
     describe('#fetch()', function () {
@@ -180,7 +177,7 @@ describe('models.BaseModel persistence', function () {
             var model = new models.BaseModel({
                 _id: 'pikachu',
             });
-            mockDb.expects('get').withArgs('pikachu').yields(null, pikachu);
+            mock.expects('get').withArgs('pikachu').yields(null, pikachu);
             model.fetch(function (err) {
                 model.attributes.should.deep.equal(pikachu);
                 done(err);
@@ -197,8 +194,8 @@ describe('models.BaseModel persistence', function () {
                 _id: 'id',
                 _rev: 'rev',
             };
-            mockDb.expects('save').once()
-                .withArgs(undefined, undefined, pikachu)
+            mock.expects('insert').once()
+                .withArgs(pikachu, undefined)
                 .yields(null, res);
             model.save(function (err) {
                 model.has('_id').should.be.true;
@@ -215,8 +212,8 @@ describe('models.BaseModel persistence', function () {
                 _id: 'pikachu',
                 _rev: 'rev2',
             };
-            mockDb.expects('save').once()
-                .withArgs('pikachu', 'rev', pikachu)
+            mock.expects('insert').once()
+                .withArgs(pikachu, 'pikachu')
                 .yields(null, res);
             model.save(function (err) {
                 model.id().should.equal('pikachu');
@@ -228,7 +225,7 @@ describe('models.BaseModel persistence', function () {
         it('should fail if model is invalid', function (done) {
             var model = new models.BaseModel(pikachu);
             model.validates('Oh no', function () { return false; });
-            mockDb.expects('save').never();
+            mock.expects('insert').never();
             model.save(function (err) {
                 err.should.deep.equal(['Oh no']);
                 done();
@@ -247,7 +244,7 @@ describe('models.BaseModel persistence', function () {
                 _id: 'pikachu',
                 _rev: 'rev2',
             };
-            mockDb.expects('remove').once()
+            mock.expects('destroy').once()
                 .withArgs('pikachu', 'rev')
                 .yields(null, res);
             model.destroy(function (err) {
