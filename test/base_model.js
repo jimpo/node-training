@@ -123,7 +123,18 @@ describe('models.BaseModel', function () {
         });
     });
 
-    describe('#validationErrors()', function () {
+    describe('validation', function () {
+        it('should return validation object', function () {
+            // Verify a subset of the node-validator validators are present
+            pikachu.validates('evolution').should.respondTo('isEmail');
+            pikachu.validates('evolution').should.respondTo('isUrl');
+            pikachu.validates('evolution').should.respondTo('isIP');
+            pikachu.validates('evolution').should.respondTo('regex');
+            pikachu.validates('evolution').should.respondTo('equals');
+            pikachu.validates('evolution').should.respondTo('contains');
+        });
+    });
+        /*
         it('should return error messages for false conditions', function () {
             pikachu.validates('Evolution is not riachu', function () {
                 return this.get('evolution') === 'riachu';
@@ -146,6 +157,7 @@ describe('models.BaseModel', function () {
             pikachu.validates(pred.matches('species', /mouse/));
             pikachu.isValid().should.be.true;
         });
+        */
     });
 });
 
