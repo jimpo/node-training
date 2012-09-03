@@ -78,4 +78,20 @@ describe('Validation', function () {
             validation.message().should.match(errorRegex);
         });
     });
+
+    describe('#exists()', function () {
+        it('should be false if property is undefined or null', function () {
+            var validation = new Validation('target');
+            validation.exists();
+            validation.validator().should.be.false;
+            validation.validator(null).should.be.false;
+        });
+
+        it('should be true if property exists', function () {
+            var validation = new Validation('target');
+            validation.exists();
+            validation.validator('').should.be.true;
+            validation.validator(1).should.be.true;
+        });
+    });
 });

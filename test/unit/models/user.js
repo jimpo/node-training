@@ -1,7 +1,8 @@
-'use strict'
+'use strict';
+
+var models = require('models');
 
 
-/*
 describe('User', function () {
     var user;
 
@@ -37,7 +38,7 @@ describe('User', function () {
                 ['email does not have correct format']);
         });
     });
-
+/*
     describe('#setPassword()', function () {
         it("should set 'passwd_hash' attribute", function (done) {
             user.has('passwd_hash').should.be.false;
@@ -70,5 +71,5 @@ describe('User', function () {
             });
         });
     });
-});
 */
+});
