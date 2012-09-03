@@ -8,15 +8,22 @@ var Validation = require('util/validation');
 
 describe('Validation', function () {
     describe('constructor', function () {
-        it('should use given error message', function () {
-            var validation = new Validation('target', 'Error message');
-            validation.message.should.equal('Error message');
-        });
-
         it('should validate existence if no validator is given', function () {
             var validation = new Validation('target');
             validation.validator().should.be.false;
             validation.validator(false).should.be.true;
+        });
+    });
+
+    describe('#message()', function () {
+        it('should use given error message', function () {
+            var validation = new Validation('target', 'Error message');
+            validation.message().should.equal('Error message');
+        });
+
+        it('should use default error message if no message given', function () {
+            var validation = new Validation('target');
+            expect(validation.message()).to.exist;
         });
     });
 
@@ -46,12 +53,6 @@ describe('Validation', function () {
                 'target', 'Error message', function () { return false; });
             validation.check().should.equal('Error message');
         });
-
-        it('should return default error message if there is none', function () {
-            var validation = new Validation(
-                'target', undefined, function () { return false; });
-            expect(validation.check()).to.exist;
-        });
     });
 
     describe('validators', function () {
@@ -73,7 +74,8 @@ describe('Validation', function () {
         it('should reset default error with more appropriate one', function () {
             var validation = new Validation('target');
             validation.contains('b');
-            validation.check().should.equal(validator.defaultError.contains);
+            var errorRegex = new RegExp(validator.defaultError.contains);
+            validation.check().should.match(errorRegex);
         });
     });
 });
