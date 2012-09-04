@@ -255,12 +255,13 @@ describe('models.BaseModel persistence', function () {
             });
         });
 
-        it('should fail if model is invalid', function (done) {
+        it('should yield ValidationError if model is invalid', function (done) {
             var model = new models.BaseModel(pikachu);
             sinon.stub(model, 'errors').returns(['Oh no']);
             mock.expects('insert').never();
             model.save(function (err) {
-                err.should.deep.equal(['Oh no']);
+                err.name.should.equal('ValidationError');
+                err.errors.should.deep.equal(['Oh no']);
                 done();
             });
         });
