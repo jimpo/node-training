@@ -1,5 +1,7 @@
 'use strict';
 
+var errs = require('errs');
+
 var db = require('db');
 var models = require('models');
 
@@ -262,6 +264,20 @@ describe('models.BaseModel persistence', function () {
             model.save(function (err) {
                 err.name.should.equal('ValidationError');
                 err.errors.should.deep.equal(['Oh no']);
+                done();
+            });
+        });
+
+        it('should yield UniquenessError if id is taken', function(done) {
+            var model = new models.BaseModel(pikachu);
+            mock.expects('insert').once()
+                .withArgs(pikachu, 'pikachu')
+                .yields(errs.create({
+                    status_code: 409,
+                }));
+            model.save(function (err) {
+                err.name.should.equal('UniquenessError');
+                err.message.should.equal('ID "pikachu" already exists');
                 done();
             });
         });
