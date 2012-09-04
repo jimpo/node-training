@@ -14,8 +14,12 @@ app.configure(function () {
     app.set('views', __dirname + '/views');
     app.set('view engine', 'jade');
     app.locals(helpers);
-    app.use(express.static(__dirname + '/public'));
     app.use(express.bodyParser());
+    app.use(express.methodOverride());
+    app.use(express.cookieParser('secret'));
+    app.use(express.session());
+    app.use(express.csrf());
+    app.use(express.static(__dirname + '/public'));
     app.use(app.router);
     app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
 });
