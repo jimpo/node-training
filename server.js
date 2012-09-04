@@ -26,10 +26,19 @@ app.configure(function () {
 
 route.init(app);
 
-db.init(null, function (err) {
-    if (err) console.error(err);
-    else {
-        console.log('Server is listening on port ' + config.port);
-        app.listen(config.port);
-    }
-});
+exports.run = function (callback) {
+    db.init(null, function (err) {
+        if (err) return callback(err);
+        else {
+            console.log('Server is listening on port ' + config.port);
+            app.listen(config.port);
+            callback();
+        }
+    });
+};
+
+if (require.main === module) {
+    exports.run(function (err) {
+        err && console.error(err);
+    });
+}
