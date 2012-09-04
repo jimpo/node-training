@@ -8,7 +8,7 @@ var server = require('../../server');
 var SUCCESS_CODE = 200;
 
 
-describe('controllers/user', function () {
+describe('/user', function () {
     before(function (done) {
         server.run(done);
     });
@@ -84,6 +84,23 @@ describe('controllers/user', function () {
                     done();
                 });
         });
+
+        it('should fill fields with values when model is invalid',
+           function (done) {
+               browser
+                   .fill('Name', 'Ash Ketchum')
+                   .fill('Email', 'not an email')
+                   .fill('Username', 'pokefan')
+                   .pressButton('Submit', function () {
+                       var form = browser.query('form');
+                       expect(form).to.exist;
+                       form.querySelector('input#name').value
+                           .should.equal('Ash Ketchum');
+                       form.querySelector('input#_id').value
+                           .should.equal('pokefan');
+                       done();
+                   });
+           });
     });
 });
 
