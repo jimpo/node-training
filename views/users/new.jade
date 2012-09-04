@@ -13,29 +13,29 @@ block content
     input(type='hidden', name='_csrf', value=token)
 
     .control-group
-      label.control-label Name
+      label.control-label(for='name') Name
       .controls
-        input(type='text', name='doc[name]', value=doc.name)
+        input#name(type='text', name='doc[name]', value=doc.name)
 
     .control-group
-      label.control-label Email
+      label.control-label(for='email') Email
       .controls
-        input(type='text', name='doc[email]', value=doc.email)
+        input#email(type='text', name='doc[email]', value=doc.email)
 
     .control-group
-      label.control-label Username
+      label.control-label(for='_id') Username
       .controls
-        input(type='text', name='doc[_id]', value=doc._id)
+        input#_id(type='text', name='doc[_id]', value=doc._id)
 
     .control-group
-      label.control-label Password
+      label.control-label(for='passwd') Password
       .controls
-        input(type='password', name='passwd')
+        input#passwd(type='password', name='passwd')
 
     .control-group
-      label.control-label Confirm password
+      label.control-label(for='passwd_confirm') Confirm password
       .controls
-        input(type='password', name='passwd_confirm')
+        input#passwd_confirm(type='password', name='passwd_confirm')
 
     .form-actions
-      input.btn.btn-large.btn-primary(type='submit')
+      button.btn.btn-large.btn-primary(type='submit') Submit
