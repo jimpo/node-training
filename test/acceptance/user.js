@@ -1,6 +1,7 @@
 'use strict';
 
 var Browser = require('zombie');
+var errs = require('errs');
 
 var db = require('db');
 var server = require('../../server');
@@ -101,6 +102,24 @@ describe('/user', function () {
                        done();
                    });
            });
+
+        it('should fail registration if username exists', function (done) {
+            sinon.stub(db, 'insert').yields(errs.create({status_code: 409}));
+            browser
+                .fill('Name', 'Ash Ketchum')
+                .fill('Email', 'ash.ketchum@pallettown.com')
+                .fill('Username', 'pokefan')
+                .fill('Password', 'pikachu')
+                .fill('Confirm password', 'pikachu')
+                .pressButton('Submit', function () {
+                    browser.statusCode.should.equal(SUCCESS_CODE);
+                    var errors = browser.text('.alert-error');
+                    expect(errors).to.exist;
+                    errors.should.contain('ID "pokefan" already exists');
+                    db.insert.restore();
+                    done();
+                });
+        });
     });
 });
 
