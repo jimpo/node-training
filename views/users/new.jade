@@ -1,39 +1,39 @@
 extends ../layout
 
 block content
-  h1 Create an account
   form.well.form-horizontal(method='POST', action='/users')
+    legend Create an account
+
     - if (errors)
       .alert.alert-error
         ul
           - each error in errors
             li= capitalize(error)
 
-    fieldset
-      .control-group
-        label.control-label Name
-        .controls
-          input(type='text', name='doc[name]', value=doc.name)
+    .control-group
+      label.control-label Name
+      .controls
+        input(type='text', name='doc[name]', value=doc.name)
 
-      .control-group
-        label.control-label Email
-        .controls
-          input(type='text', name='doc[email]', value=doc.email)
+    .control-group
+      label.control-label Email
+      .controls
+        input(type='text', name='doc[email]', value=doc.email)
 
-      .control-group
-        label.control-label Username
-        .controls
-          input(type='text', name='doc[_id]', value=doc._id)
+    .control-group
+      label.control-label Username
+      .controls
+        input(type='text', name='doc[_id]', value=doc._id)
 
-      .control-group
-        label.control-label Password
-        .controls
-          input(type='password', name='passwd')
+    .control-group
+      label.control-label Password
+      .controls
+        input(type='password', name='passwd')
 
-      .control-group
-        label.control-label Confirm password
-        .controls
-          input(type='password', name='passwd_confirm')
+    .control-group
+      label.control-label Confirm password
+      .controls
+        input(type='password', name='passwd_confirm')
 
-      .form-actions
-        input.btn.btn-large.btn-primary(type='submit')
+    .form-actions
+      input.btn.btn-large.btn-primary(type='submit')

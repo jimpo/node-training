@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 var express = require('express');
 
@@ -16,6 +16,7 @@ app.configure(function () {
     app.locals(helpers);
     app.use(express.static(__dirname + '/public'));
     app.use(express.bodyParser());
+    app.use(app.router);
     app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
 });
 

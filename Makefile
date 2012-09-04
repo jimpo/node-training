@@ -10,4 +10,7 @@ test-unit:
 	@NODE_ENV=test NODE_PATH=./lib ./node_modules/.bin/mocha \
 		$(MOCHA_OPTS) $(UNIT_TEST_FILES)
 
-.PHONY: install test test-unit
+run:
+	node server.js
+
+.PHONY: install test test-unit run
