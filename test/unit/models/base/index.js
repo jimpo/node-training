@@ -11,14 +11,17 @@ describe('models.BaseModel', function () {
 
     beforeEach(function () {
         models.BaseModel.prototype.name = 'electric';
-        pikachu = new models.BaseModel({
-            _id: 'pikachu',
+        pikachu = new models.BaseModel('pikachu', {
             type: 'electric',
             species: 'mouse',
         });
     });
 
     describe('constructor', function () {
+        it('should set id to given id', function () {
+            pikachu.attributes._id.should.equal('pikachu');
+        });
+
         it('should initialize attributes to constructor argument', function () {
             pikachu.attributes.should.deep.equal({
                 _id: 'pikachu',
@@ -33,6 +36,18 @@ describe('models.BaseModel', function () {
                expect(pikachu.attributes).to.exist;
                pikachu.attributes.should.deep.equal({type: 'electric'});
            });
+
+
+        it('should make new model without id', function () {
+            pikachu = new models.BaseModel({
+                type: 'electric',
+                species: 'mouse',
+            });
+            pikachu.attributes.should.deep.equal({
+                type: 'electric',
+                species: 'mouse',
+            });
+        });
 
         it('should set type if exists', function () {
             pikachu = new models.BaseModel({});
@@ -179,9 +194,7 @@ describe('models.BaseModel persistence', function () {
 
     describe('#exists()', function () {
         it('should return revision if object exists', function (done) {
-            var model = new models.BaseModel({
-                _id: 'pikachu',
-            });
+            var model = new models.BaseModel('pikachu');
             var headers = {etag: '"rev"'};
             mock.expects('head').withArgs('pikachu')
                 .yields(null, null, headers);
@@ -193,9 +206,7 @@ describe('models.BaseModel persistence', function () {
         });
 
         it("should be falsy if object doesn't exist", function (done) {
-            var model = new models.BaseModel({
-                _id: 'pikachu',
-            });
+            var model = new models.BaseModel('pikachu');
             var error = new Error;
             error.status_code = 404;
             mock.expects('head').withArgs('pikachu').yields(error);
@@ -209,9 +220,7 @@ describe('models.BaseModel persistence', function () {
 
     describe('#fetch()', function () {
         it('should retrieve object from database', function (done) {
-            var model = new models.BaseModel({
-                _id: 'pikachu',
-            });
+            var model = new models.BaseModel('pikachu');
             mock.expects('get').withArgs('pikachu').yields(null, pikachu);
             model.fetch(function (err) {
                 model.attributes.should.deep.equal(pikachu);
