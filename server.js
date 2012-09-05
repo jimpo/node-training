@@ -8,6 +8,7 @@ var route = require('./lib/route');
 var helpers = require('./lib/helpers');
 
 var app = express();
+var running = false;
 
 
 app.configure(function () {
@@ -27,11 +28,15 @@ app.configure(function () {
 route.init(app);
 
 exports.run = function (callback) {
+    if (running) {
+        return callback()
+    }
     db.init(null, function (err) {
         if (err) return callback(err);
         else {
             console.log('Server is listening on port ' + config.port);
             app.listen(config.port);
+            running = true;
             callback();
         }
     });

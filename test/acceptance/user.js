@@ -20,7 +20,7 @@ describe('/user', function () {
         beforeEach(function (done) {
             Browser.visit(url('/users/new'), function (err, _browser) {
                 browser = _browser;
-                done();
+                done(err);
             });
         });
 
