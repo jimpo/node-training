@@ -9,12 +9,12 @@ var server = require('../../server');
 var SUCCESS_CODE = 200;
 
 
-describe('/user', function () {
+describe('user', function () {
     before(function (done) {
         server.run(done);
     });
 
-    describe('GET /users/new', function () {
+    describe('/users/new', function () {
         var browser;
 
         beforeEach(function (done) {

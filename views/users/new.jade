@@ -1,7 +1,7 @@
 extends ../layout
 
 block content
-  form.well.form-horizontal(method='POST', action='/users')
+  form.form-horizontal(method='POST', action='/users')
     legend Create an account
 
     - if (errors)
