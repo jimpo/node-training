@@ -75,9 +75,25 @@ describe('main', function () {
                     done();
                 });
         });
+
+        it('should fetch given user', function (done) {
+            var user = {
+                _id: 'pokefan',
+                _rev: 'rev',
+            };
+            var mock = sinon.mock(db);
+            mock.expects('get').withArgs('pokefan').yields(null, user);
+            browser
+                .fill('Username', 'pokefan')
+                .fill('Password', 'pikachu')
+                .pressButton('Log In', function () {
+                    mock.verify();
+                    done();
+                });
+        })
     });
 });
 
 function url(path) {
-    return 'http://localhost:3000' + path;
+    return 'http://localhost:4000' + path;
 };
