@@ -7,8 +7,7 @@ describe('User', function () {
     var user;
 
     beforeEach(function () {
-        user = new models.User({
-            _id: 'pikachu',
+        user = new models.User('pikachu', {
             name: 'Pikachu',
             email: 'pikachu@pika.com',
         });
