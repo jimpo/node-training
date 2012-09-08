@@ -1,0 +1,26 @@
+extends layout
+
+block content
+  form.form-horizontal(method='POST', action='')
+    legend Sign In
+
+    - if (errors)
+      .alert.alert-error
+        ul
+          - each error in errors
+            li= capitalize(error)
+
+    input(type='hidden', name='_csrf', value=token)
+
+    .control-group
+      label.control-label(for='user') Username
+      .controls
+        input#user(type='text', name='user', value=user)
+
+    .control-group
+      label.control-label(for='passwd') Password
+      .controls
+        input#passwd(type='password', name='passwd')
+
+    .form-actions
+      button.btn.btn-large.btn-primary(type='submit') Log In
