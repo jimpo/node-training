@@ -90,7 +90,40 @@ describe('main', function () {
                     mock.verify();
                     done();
                 });
-        })
+        });
+
+        it("should fail if user doesn't exist", function (done) {
+            sinon.stub(db, 'get').withArgs('pokefan').yields(errs.create({
+                status_code: 404,
+            }));
+            browser
+                .fill('Username', 'pokefan')
+                .fill('Password', 'pikachu')
+                .pressButton('Log In', function () {
+                    browser.text('.alert-error').should.contain(
+                        'User "pokefan" does not exist');
+                    db.get.restore();
+                    done();
+                });
+        });
+
+        it("should fail if password is incorrect", function (done) {
+            var user = {
+                _id: 'pokefan',
+                _rev: 'rev',
+                passwd_hash: 'wrong password',
+            };
+            sinon.stub(db, 'get').withArgs('pokefan').yields(null, user);
+            browser
+                .fill('Username', 'pokefan')
+                .fill('Password', 'pikachu')
+                .pressButton('Log In', function () {
+                    browser.text('.alert-error').should.contain(
+                        'Password did not match')
+                    db.get.restore();
+                    done();
+                });
+        });
     });
 });
 
