@@ -40,12 +40,28 @@ describe('main', function () {
     });
 
     describe('#loginData()', function () {
+        var successfulLogin = function (req, res, next, callback) {
+            sinon.stub(User.prototype, 'fetch').yields(null);
+            sinon.stub(User.prototype, 'matchesPassword').yields(null, true);
+            req.body = {
+                user: 'pokefan',
+                passwd: 'pikapass',
+            };
+            res.redirect = function (url) {
+                User.prototype.fetch.restore();
+                User.prototype.matchesPassword.restore();
+                callback(url);
+            };
+            main.loginData(req, res, next);
+        };
+
         it('should fail if username is not provided', function () {
             req.body = {passwd: 'pikapass'};
             res.render = sinon.spy();
             main.loginData(req, res, next);
             res.render.should.have.been.calledWith('login');
-            res.render.args[0][1].errors.should.exist;
+            res.render.args[0][1].errors.should.contain(
+                'Please enter username');
         });
 
         it('should fail if password is not provided', function () {
@@ -53,7 +69,8 @@ describe('main', function () {
             res.render = sinon.spy();
             main.loginData(req, res, next);
             res.render.should.have.been.calledWith('login');
-            res.render.args[0][1].errors.should.exist;
+            res.render.args[0][1].errors.should.contain(
+                'Please enter password');
         });
 
         it('should render with user on failure', function () {
@@ -87,7 +104,8 @@ describe('main', function () {
             res.render = sinon.spy();
             main.loginData(req, res, next);
             res.render.should.have.been.calledWith('login');
-            res.render.args[0][1].errors.should.exist;
+            res.render.args[0][1].errors.should.contain(
+                'User "pokefan" does not exist');
             User.prototype.fetch.restore();
         });
 
@@ -100,7 +118,7 @@ describe('main', function () {
             };
             res.render = function (view, locals) {
                 view.should.equal('login');
-                locals.errors.should.exist;
+                locals.errors.should.contain('Password did not match');
                 User.prototype.fetch.restore();
                 User.prototype.matchesPassword.restore();
                 done();
@@ -108,10 +126,31 @@ describe('main', function () {
             main.loginData(req, res, next);
         });
 
-        /*
-        it('should set session user to user id after login');
-        it('should redirect to specified url after login');
-        it('should redirect to home page if no redirect given');
-        */
+        it('should set session user to user id after login', function (done) {
+            req.session = {};
+            req.query = {};
+            successfulLogin(req, res, next, function () {
+                req.session.user.should.equal('pokefan');
+                done();
+            });
+        });
+
+        it('should redirect to specified url after login', function (done) {
+            req.session = {};
+            req.query = {redirect: '/after/path'};
+            successfulLogin(req, res, next, function (url) {
+                url.should.equal('/after/path');
+                done();
+            });
+        });
+
+        it('should redirect to home page if no redirect given', function (done) {
+            req.session = {};
+            req.query = {};
+            successfulLogin(req, res, next, function (url) {
+                url.should.equal('/');
+                done();
+            });
+        });
     });
 });
