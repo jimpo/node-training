@@ -80,6 +80,14 @@ describe('main', function () {
                 });
         });
 
+        it('should keep redirect url on failed login', function (done) {
+            browser.pressButton('Log In', function () {
+                browser.location.pathname.should.equal('/login');
+                browser.location.search.should.equal('?redirect=/after/path');
+                done();
+            });
+        });
+
         it('should fetch given user', function (done) {
             var user = {
                 _id: 'pokefan',
