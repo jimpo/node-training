@@ -1,10 +1,10 @@
 'use strict';
 
+var assert = require('assert');
 var Browser = require('zombie');
 var errs = require('errs');
-
-var db = require('db');
-var server = require('../../server');
+var nock = require('nock');
+var url = require('url');
 
 var SUCCESS_CODE = 200;
 
@@ -15,10 +15,11 @@ describe('user', function () {
     });
 
     describe('/users/new', function () {
-        var browser;
+        var scope, browser;
 
         beforeEach(function (done) {
-            Browser.visit(url('/users/new'), function (err, _browser) {
+            scope = nock(url.format(config.couchdb));
+            Browser.visit(fullUrl('/users/new'), function (err, _browser) {
                 browser = _browser;
                 done(err);
             });
@@ -36,38 +37,43 @@ describe('user', function () {
         });
 
         it('should create new user when form is submitted', function (done) {
-            sinon.stub(db, 'insert').yields(null, {});
+            scope
+                .filteringRequestBody(function (body) {
+                    body = JSON.parse(body);
+                    body.should.have.property('passwd_hash');
+                    body.passwd_hash = 'pikahash';
+                    return JSON.stringify(body);
+                })
+                .put('/' + config.dbName + '/pokefan', JSON.stringify({
+                    name: 'Ash Ketchum',
+                    email: 'ash.ketchum@pallettown.com',
+                    _id: 'pokefan',
+                    type: 'User',
+                    passwd_hash: 'pikahash',
+                }))
+                .reply(201, {
+                    ok: true,
+                    id: 'pokefan',
+                    rev: 'rev',
+                });
             browser
                 .fill('Name', 'Ash Ketchum')
                 .fill('Email', 'ash.ketchum@pallettown.com')
                 .fill('Username', 'pokefan')
-                .fill('Password', 'pikachu')
-                .fill('Confirm password', 'pikachu')
+                .fill('Password', 'pikapass')
+                .fill('Confirm password', 'pikapass')
                 .pressButton('Submit', function () {
-                    db.insert.should.have.been.called;
-                    var doc = db.insert.args[0][0];
-                    var id = db.insert.args[0][1];
-                    id.should.equal('pokefan');
-                    doc.should.have.property('passwd_hash');
-                    delete doc.passwd_hash;
-                    doc.should.deep.equal({
-                        _id: 'pokefan',
-                        email: 'ash.ketchum@pallettown.com',
-                        name: 'Ash Ketchum',
-                        type: 'User',
-                    });
-                    db.insert.restore();
+                    scope.done();
                     done();
                 });
         });
 
         it('should not create new user when model is invalid', function (done) {
-            sinon.stub(db, 'insert');
+            scope.put('/' + config.dbName + '/pokefan').reply(201);
             browser
                 .fill('Name', 'Ash Ketchum')
                 .pressButton('Submit', function () {
-                    db.insert.should.not.have.been.called;
-                    db.insert.restore();
+                    scope.done.should.throw();
                     done();
                 });
         });
@@ -104,26 +110,37 @@ describe('user', function () {
            });
 
         it('should fail registration if username exists', function (done) {
-            sinon.stub(db, 'insert').yields(errs.create({status_code: 409}));
+            scope
+                .filteringRequestBody(function (body) {
+                    body = JSON.parse(body);
+                    body.should.have.property('passwd_hash');
+                    body.passwd_hash = 'pikahash';
+                    return JSON.stringify(body);
+                })
+                .put('/' + config.dbName + '/pokefan', JSON.stringify({
+                    name: 'Ash Ketchum',
+                    email: 'ash.ketchum@pallettown.com',
+                    _id: 'pokefan',
+                    type: 'User',
+                    passwd_hash: 'pikahash',
+                }))
+                .reply(409, {
+                    error: 'conflict',
+                    reason: 'Document update conflict.',
+                });
             browser
                 .fill('Name', 'Ash Ketchum')
                 .fill('Email', 'ash.ketchum@pallettown.com')
                 .fill('Username', 'pokefan')
-                .fill('Password', 'pikachu')
-                .fill('Confirm password', 'pikachu')
+                .fill('Password', 'pikapass')
+                .fill('Confirm password', 'pikapass')
                 .pressButton('Submit', function () {
                     browser.statusCode.should.equal(SUCCESS_CODE);
                     var errors = browser.text('.alert-error');
                     expect(errors).to.exist;
                     errors.should.contain('ID "pokefan" already exists');
-                    db.insert.restore();
                     done();
                 });
         });
     });
 });
-
-// TODO: move this out into common
-function url(path) {
-    return 'http://localhost:4000' + path;
-};
