@@ -10,7 +10,7 @@ var SUCCESS_CODE = 200;
 var PASS_HASH = '$2a$10$bJGLPL19uo0ojAe97jQk5.KeafoWk.MQGFEtXmdneGHjBDPxUU9bi';
 
 
-describe('main', function () {
+describe('main not logged in', function () {
     before(function (done) {
         server.run(done);
     });
@@ -168,6 +168,51 @@ describe('main', function () {
                         done();
                     });
             });
+        });
+    });
+});
+
+describe('main logged in', function () {
+    var logIn = function (path, callback) {
+        var scope = nock(url.format(config.couchdb));
+        var user = {
+            _id: 'pokefan',
+            _rev: 'rev',
+            name: 'Ash Ketchum',
+            email: 'ash.ketchum@pallettown.com',
+            type: 'User',
+            passwd_hash: PASS_HASH,
+        };
+        scope
+            .get('/' + config.dbName + '/pokefan')
+            .reply(200, JSON.stringify(user));
+        Browser.visit(
+            fullUrl('/login?redirect=' + path), function (err, browser) {
+                if (err) return callback(err);
+                browser
+                    .fill('Username', 'pokefan')
+                    .fill('Password', 'pikapass')
+                    .pressButton('Log In', function () {
+                        browser.redirected.should.be.true;
+                        browser.location.pathname.should.equal('/');
+                        callback(null, scope, browser);
+                    });
+            });
+    };
+
+    describe('/', function () {
+        var scope, browser;
+
+        beforeEach(function (done) {
+            logIn('/', function (err, _scope, _browser) {
+                scope = _scope;
+                browser = _browser;
+                done(err);
+            });
+        });
+
+        it('should welcome user with name', function () {
+            browser.text('body').should.contain('Welcome, Ash Ketchum!');
         });
     });
 });
