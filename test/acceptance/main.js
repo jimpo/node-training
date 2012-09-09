@@ -5,9 +5,6 @@ var errs = require('errs');
 var nock = require('nock');
 var url = require('url');
 
-var config = require('../../config');
-var server = require('../../server');
-
 var SUCCESS_CODE = 200;
 // Valid bcrypt hash for password 'pikapass'
 var PASS_HASH = '$2a$10$bJGLPL19uo0ojAe97jQk5.KeafoWk.MQGFEtXmdneGHjBDPxUU9bi';
@@ -165,7 +162,3 @@ describe('main', function () {
         });
     });
 });
-
-function fullUrl(path) {
-    return 'http://localhost:4000' + path;
-};
