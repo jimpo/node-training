@@ -25,6 +25,15 @@ describe('main', function () {
             main.home(req, res, next);
             res.render.should.have.been.calledWith('home');
         });
+
+        it('should pass signed in user to view', function () {
+            res.render = sinon.spy();
+            req.session = {user: 'pokefan'};
+            main.home(req, res, next);
+            res.render.should.have.been.calledWith('home', {
+                user: 'pokefan',
+            });
+        });
     });
 
     describe('#login()', function () {
