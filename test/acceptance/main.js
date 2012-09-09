@@ -2,9 +2,10 @@
 
 var Browser = require('zombie');
 var errs = require('errs');
+var nock = require('nock');
+var url = require('url');
 
-var db = require('db');
-var models = require('models');
+var config = require('../../config');
 var server = require('../../server');
 
 var SUCCESS_CODE = 200;
@@ -21,7 +22,7 @@ describe('main', function () {
         var browser;
 
         beforeEach(function (done) {
-            Browser.visit(url('/'), function (err, _browser) {
+            Browser.visit(fullUrl('/'), function (err, _browser) {
                 browser = _browser;
                 done(err);
             });
@@ -33,14 +34,15 @@ describe('main', function () {
     });
 
     describe('/login', function () {
-        var browser;
+        var scope, browser;
 
         beforeEach(function (done) {
-            Browser.visit(
-                url('/login?redirect=/after/path'), function (err, _browser) {
-                    browser = _browser;
-                    done(err);
-                });
+            scope = nock(url.format(config.couchdb));
+            Browser.visit(fullUrl('/login?redirect=/after/path'),
+                          function (err, _browser) {
+                              browser = _browser;
+                              done(err);
+                          });
         });
 
         it('should successfully load page', function () {
@@ -88,69 +90,54 @@ describe('main', function () {
             });
         });
 
-        it('should fetch given user', function (done) {
-            var user = {
-                _id: 'pokefan',
-                _rev: 'rev',
-            };
-            var mock = sinon.mock(db);
-            mock.expects('get').withArgs('pokefan').yields(null, user);
-            browser
-                .fill('Username', 'pokefan')
-                .fill('Password', 'pikapass')
-                .pressButton('Log In', function () {
-                    mock.verify();
-                    done();
-                });
-        });
-
         it("should fail if user doesn't exist", function (done) {
-            sinon.stub(db, 'get').withArgs('pokefan').yields(errs.create({
-                status_code: 404,
-            }));
+            scope
+                .get('/' + config.dbName + '/pokefan')
+                .reply(404, '{"error":"not_found","reason":"missing"}');
             browser
                 .fill('Username', 'pokefan')
                 .fill('Password', 'pikapass')
                 .pressButton('Log In', function () {
                     browser.text('.alert-error').should.contain(
                         'User "pokefan" does not exist');
-                    db.get.restore();
                     done();
                 });
         });
 
         it("should fail if password is incorrect", function (done) {
-            var user = {
+              var user = {
                 _id: 'pokefan',
                 _rev: 'rev',
                 passwd_hash: PASS_HASH,
             };
-            sinon.stub(db, 'get').withArgs('pokefan').yields(null, user);
+            scope
+                .get('/' + config.dbName + '/pokefan')
+                .reply(200, JSON.stringify(user));
             browser
                 .fill('Username', 'pokefan')
                 .fill('Password', 'wrong_pass')
                 .pressButton('Log In', function () {
                     browser.text('.alert-error').should.contain(
                         'Password did not match')
-                    db.get.restore();
                     done();
                 });
         });
 
-        it('should redirect to specified url after login', function (done) {
+        it("should redirect to specified url after login", function (done) {
             var user = {
                 _id: 'pokefan',
                 _rev: 'rev',
                 passwd_hash: PASS_HASH,
             };
-            sinon.stub(db, 'get').withArgs('pokefan').yields(null, user);
+            scope
+                .get('/' + config.dbName + '/pokefan')
+                .reply(200, JSON.stringify(user));
             browser
                 .fill('Username', 'pokefan')
                 .fill('Password', 'pikapass')
                 .pressButton('Log In', function () {
                     browser.redirected.should.be.true;
                     browser.location.pathname.should.equal('/after/path');
-                    db.get.restore();
                     done();
                 });
         });
@@ -161,8 +148,10 @@ describe('main', function () {
                 _rev: 'rev',
                 passwd_hash: PASS_HASH,
             };
-            sinon.stub(db, 'get').withArgs('pokefan').yields(null, user);
-            Browser.visit(url('/login'), function (err, browser) {
+            scope
+                .get('/' + config.dbName + '/pokefan')
+                .reply(200, JSON.stringify(user));
+            Browser.visit(fullUrl('/login'), function (err, browser) {
                 expect(err).not.to.exist;
                 browser
                     .fill('Username', 'pokefan')
@@ -170,7 +159,6 @@ describe('main', function () {
                     .pressButton('Log In', function () {
                         browser.redirected.should.be.true;
                         browser.location.pathname.should.equal('/');
-                        db.get.restore();
                         done();
                     });
             });
@@ -178,6 +166,6 @@ describe('main', function () {
     });
 });
 
-function url(path) {
+function fullUrl(path) {
     return 'http://localhost:4000' + path;
 };
