@@ -28,6 +28,15 @@ describe('main', function () {
         it('should successfully load page', function () {
             browser.statusCode.should.equal(SUCCESS_CODE);
         });
+
+        it('should have links to sign in and register on navbar', function () {
+            var navbar = browser.query('.navbar');
+            expect(navbar).to.exist;
+            navbar.querySelector('a:contains("Sign In")')
+                .getAttribute('href').should.equal('/login');
+            navbar.querySelector('a:contains("Register")')
+                .getAttribute('href').should.equal('/users/new');
+        });
     });
 
     describe('/login', function () {
