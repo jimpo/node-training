@@ -2,5 +2,8 @@
   .navbar-inner
     a.brand(href="/") Application
     ul.nav.pull-right
-      li: a(href="/login") Sign In
-      li: a(href="/users/new") Register
+      - if (user)
+        li: a(href="/logout") Log Out
+      - else
+        li: a(href="/login") Sign In
+        li: a(href="/users/new") Register

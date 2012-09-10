@@ -214,5 +214,12 @@ describe('main logged in', function () {
         it('should welcome user with name', function () {
             browser.text('body').should.contain('Welcome, Ash Ketchum!');
         });
+
+        it('should have a logout link', function () {
+            var navbar = browser.query('.navbar');
+            expect(navbar).to.exist;
+            navbar.querySelector('a:contains("Log Out")')
+                .getAttribute('href').should.equal('/logout');
+        });
     });
 });
