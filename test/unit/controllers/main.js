@@ -16,28 +16,24 @@ describe('main', function () {
             }
         };
         res = {};
-        next = {};
+        next = sinon.spy();
     });
 
     describe('#home()', function () {
         it('should render home view', function () {
             res.render = sinon.spy();
             main.home(req, res, next);
-            res.render.should.have.been.calledWith('home', {
-                user: undefined,
-            });
+            res.render.should.have.been.calledWith('home');
         });
 
         it('should pass signed in user to view', function () {
-            sinon.stub(User.prototype, 'fetch').yields();
+            var user = new User('pokefan');
+            sinon.stub(user, 'fetch').yields();
             res.render = sinon.spy();
-            req.session = {user: 'pokefan'};
+            req.session = {user: user};
             main.home(req, res, next);
             res.render.should.have.been.calledWith('home');
-            var user = res.render.args[0][1].user;
-            user.should.be.an.instanceOf(User);
-            user.id().should.equal('pokefan');
-            User.prototype.fetch.restore();
+            user.fetch.should.have.been.called;
         });
     });
 
@@ -144,7 +140,8 @@ describe('main', function () {
             req.session = {};
             req.query = {};
             successfulLogin(req, res, next, function () {
-                req.session.user.should.equal('pokefan');
+                req.session.should.have.property('user');
+                req.session.user.id().should.equal('pokefan');
                 done();
             });
         });
