@@ -23,16 +23,21 @@ describe('main', function () {
         it('should render home view', function () {
             res.render = sinon.spy();
             main.home(req, res, next);
-            res.render.should.have.been.calledWith('home');
+            res.render.should.have.been.calledWith('home', {
+                user: undefined,
+            });
         });
 
         it('should pass signed in user to view', function () {
+            sinon.stub(User.prototype, 'fetch').yields();
             res.render = sinon.spy();
             req.session = {user: 'pokefan'};
             main.home(req, res, next);
-            res.render.should.have.been.calledWith('home', {
-                user: 'pokefan',
-            });
+            res.render.should.have.been.calledWith('home');
+            var user = res.render.args[0][1].user;
+            user.should.be.an.instanceOf(User);
+            user.id().should.equal('pokefan');
+            User.prototype.fetch.restore();
         });
     });
 
