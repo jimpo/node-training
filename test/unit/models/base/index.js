@@ -10,9 +10,8 @@ describe('models.BaseModel', function () {
     var pikachu;
 
     beforeEach(function () {
-        models.BaseModel.prototype.name = 'electric';
         pikachu = new models.BaseModel('pikachu', {
-            type: 'electric',
+            pokemonType: 'electric',
             species: 'mouse',
         });
     });
@@ -25,7 +24,8 @@ describe('models.BaseModel', function () {
         it('should initialize attributes to constructor argument', function () {
             pikachu.attributes.should.deep.equal({
                 _id: 'pikachu',
-                type: 'electric',
+                type: 'BaseModel',
+                pokemonType: 'electric',
                 species: 'mouse',
             });
         });
@@ -34,31 +34,31 @@ describe('models.BaseModel', function () {
            function () {
                pikachu = new models.BaseModel();
                expect(pikachu.attributes).to.exist;
-               pikachu.attributes.should.deep.equal({type: 'electric'});
+               pikachu.attributes.should.deep.equal({type: 'BaseModel'});
            });
 
-
-        it('should make new model without id', function () {
-            pikachu = new models.BaseModel({
-                type: 'electric',
-                species: 'mouse',
-            });
-            pikachu.attributes.should.deep.equal({
-                type: 'electric',
-                species: 'mouse',
-            });
-        });
-
-        it('should set type if exists', function () {
-            pikachu = new models.BaseModel({});
-            pikachu.get('type').should.equal('electric');
+        it('should set type to constructor name', function () {
+            pikachu = new models.BaseModel();
+            pikachu.get('type').should.equal('BaseModel');
             pikachu.isValid().should.be.true;
         });
 
         it('should make model invalid on type mismatch', function () {
-            pikachu = new models.BaseModel({});
+            pikachu = new models.BaseModel();
             pikachu.set('type', 'not pokemon');
             pikachu.isValid().should.be.false;
+        });
+
+        it('should make new model without id', function () {
+            pikachu = new models.BaseModel({
+                pokemonType: 'electric',
+                species: 'mouse',
+            });
+            pikachu.attributes.should.deep.equal({
+                type: 'BaseModel',
+                pokemonType: 'electric',
+                species: 'mouse',
+            });
         });
     });
 
@@ -93,7 +93,7 @@ describe('models.BaseModel', function () {
                 color: 'yellow',
                 species: 'cute mouse',
             });
-            pikachu.attributes.type.should.equal('electric');
+            pikachu.attributes.pokemonType.should.equal('electric');
         });
 
         it('should set one attribute given key and value', function () {
@@ -174,10 +174,9 @@ describe('models.BaseModel persistence', function () {
     var pikachu, mock;
 
     beforeEach(function () {
-        models.BaseModel.prototype.name = 'electric';
         pikachu = {
             _id: 'pikachu',
-            type: 'electric',
+            pokemonType: 'electric',
             species: 'mouse',
         };
 
@@ -232,6 +231,7 @@ describe('models.BaseModel persistence', function () {
     describe('#save()', function () {
         it('should create without id', function (done) {
             delete pikachu._id;
+            pikachu.type = 'BaseModel';
             var model = new models.BaseModel(pikachu);
             var res = {
                 ok: true,
@@ -250,6 +250,7 @@ describe('models.BaseModel persistence', function () {
 
         it('should update with id and rev', function (done) {
             pikachu._rev = 'rev';
+            pikachu.type = 'BaseModel';
             var model = new models.BaseModel(pikachu);
             var res = {
                 ok: true,
@@ -279,6 +280,7 @@ describe('models.BaseModel persistence', function () {
 
         it('should yield UniquenessError if id is taken', function(done) {
             var model = new models.BaseModel(pikachu);
+            pikachu.type = 'BaseModel';
             mock.expects('insert').once()
                 .withArgs(pikachu, 'pikachu')
                 .yields(errs.create({

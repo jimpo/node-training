@@ -3,7 +3,7 @@
 var errs = require('errs');
 
 var main = require('controllers/main');
-var User = require('models/user').Model;
+var User = require('models').User;
 
 
 describe('main', function () {
