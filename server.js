@@ -4,12 +4,20 @@ var express = require('express');
 
 var config = require('./config');
 var db = require('./lib/db');
-var route = require('./lib/route');
 var helpers = require('./lib/helpers');
+var models = require('./lib/models');
+var route = require('./lib/route');
 
 var app = express();
 var running = false;
 
+
+function sessionUser(req, res, next) {
+    req.session.user = req.session.user &&
+        new models.User(req.session.user.attributes);
+    res.locals.user = req.session.user;
+    next();
+}
 
 app.configure(function () {
     app.set('views', __dirname + '/views');
@@ -21,6 +29,7 @@ app.configure(function () {
     app.use(express.session());
     app.use(express.csrf());
     app.use(express.static(__dirname + '/public'));
+    app.use(sessionUser);
     app.use(app.router);
     app.use(express.errorHandler({showStack: true, dumpExceptions: true}));
 });

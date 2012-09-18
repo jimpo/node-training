@@ -42,7 +42,6 @@ describe('main', function () {
             res.render = sinon.spy();
             main.login(req, res, next);
             res.render.should.have.been.calledWith('login', {
-                user: undefined,
                 errors: undefined,
                 token: 'csrf token',
             });
