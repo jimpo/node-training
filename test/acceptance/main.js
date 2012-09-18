@@ -221,5 +221,13 @@ describe('main logged in', function () {
             navbar.querySelector('a:contains("Log Out")')
                 .getAttribute('href').should.equal('/logout');
         });
+
+        it('should redirect to home page on logout', function (done) {
+            browser.clickLink('Log Out', function () {
+                browser.redirected.should.be.true;
+                browser.location.pathname.should.equal('/');
+                done();
+            });
+        });
     });
 });

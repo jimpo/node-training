@@ -163,4 +163,12 @@ describe('main', function () {
             });
         });
     });
+
+    describe('#logout()', function () {
+        it('should redirect to home page', function () {
+            res.redirect = sinon.spy();
+            main.logout(req, res, next);
+            res.redirect.should.have.been.calledWith('/');
+        });
+    });
 });
