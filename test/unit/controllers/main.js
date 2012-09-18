@@ -170,5 +170,12 @@ describe('main', function () {
             main.logout(req, res, next);
             res.redirect.should.have.been.calledWith('/');
         });
+
+        it('should delete session user', function () {
+            res.redirect = sinon.spy();
+            req.session = {user: new User()};
+            main.logout(req, res, next);
+            req.session.should.not.have.property('user');
+        });
     });
 });

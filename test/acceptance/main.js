@@ -221,13 +221,31 @@ describe('main logged in', function () {
             navbar.querySelector('a:contains("Log Out")')
                 .getAttribute('href').should.equal('/logout');
         });
+    });
 
-        it('should redirect to home page on logout', function (done) {
-            browser.clickLink('Log Out', function () {
-                browser.redirected.should.be.true;
-                browser.location.pathname.should.equal('/');
-                done();
+    describe('/logout', function () {
+        var scope, browser;
+
+        beforeEach(function (done) {
+            logIn('/logout', function (err, _scope, _browser) {
+                scope = _scope;
+                browser = _browser;
+                done(err);
             });
+        });
+
+        it('should redirect to home page on logout', function () {
+            browser.redirected.should.be.true;
+            browser.location.pathname.should.equal('/');
+        });
+
+        it('should have links to sign in and register on navbar', function () {
+            var navbar = browser.query('.navbar');
+            expect(navbar).to.exist;
+            navbar.querySelector('a:contains("Sign In")')
+                .getAttribute('href').should.equal('/login');
+            navbar.querySelector('a:contains("Register")')
+                .getAttribute('href').should.equal('/users/new');
         });
     });
 });
