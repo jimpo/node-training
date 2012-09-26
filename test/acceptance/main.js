@@ -43,7 +43,7 @@ describe('main not logged in', function () {
         var scope, browser;
 
         beforeEach(function (done) {
-            scope = nock(url.format(config.couchdb));
+            scope = nock(url.format(config.url));
             Browser.visit(fullUrl('/login?redirect=/after/path'),
                           function (err, _browser) {
                               browser = _browser;
@@ -98,7 +98,7 @@ describe('main not logged in', function () {
 
         it("should fail if user doesn't exist", function (done) {
             scope
-                .get('/' + config.dbName + '/pokefan')
+                .get('/' + config.db + '/pokefan')
                 .reply(404, '{"error":"not_found","reason":"missing"}');
             browser
                 .fill('Username', 'pokefan')
@@ -117,7 +117,7 @@ describe('main not logged in', function () {
                 passwd_hash: PASS_HASH,
             };
             scope
-                .get('/' + config.dbName + '/pokefan')
+                .get('/' + config.db + '/pokefan')
                 .reply(200, JSON.stringify(user));
             browser
                 .fill('Username', 'pokefan')
@@ -136,7 +136,7 @@ describe('main not logged in', function () {
                 passwd_hash: PASS_HASH,
             };
             scope
-                .get('/' + config.dbName + '/pokefan')
+                .get('/' + config.db + '/pokefan')
                 .reply(200, JSON.stringify(user));
             browser
                 .fill('Username', 'pokefan')
@@ -155,7 +155,7 @@ describe('main not logged in', function () {
                 passwd_hash: PASS_HASH,
             };
             scope
-                .get('/' + config.dbName + '/pokefan')
+                .get('/' + config.db + '/pokefan')
                 .reply(200, JSON.stringify(user));
             Browser.visit(fullUrl('/login'), function (err, browser) {
                 expect(err).not.to.exist;
@@ -173,18 +173,21 @@ describe('main not logged in', function () {
 });
 
 describe('main logged in', function () {
+    var user = {
+        _id: 'pokefan',
+        _rev: 'rev',
+        name: 'Ash Ketchum',
+        email: 'ash.ketchum@pallettown.com',
+        type: 'User',
+        passwd_hash: PASS_HASH,
+    };
+
     var logIn = function (path, callback) {
-        var scope = nock(url.format(config.couchdb));
-        var user = {
-            _id: 'pokefan',
-            _rev: 'rev',
-            name: 'Ash Ketchum',
-            email: 'ash.ketchum@pallettown.com',
-            type: 'User',
-            passwd_hash: PASS_HASH,
-        };
+        var scope = nock(url.format(config.url));
         scope
-            .get('/' + config.dbName + '/pokefan')
+            .get('/' + config.db + '/pokefan')
+            .reply(200, JSON.stringify(user))
+            .get('/' + config.db + '/pokefan')
             .reply(200, JSON.stringify(user));
         Browser.visit(
             fullUrl('/login?redirect=' + path), function (err, browser) {

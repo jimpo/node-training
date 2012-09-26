@@ -1,12 +1,13 @@
 'use strict';
 
 var express = require('express');
+var monster = require('couch-monster');
 
 var config = require('./config');
-var db = require('./lib/db');
 var helpers = require('./lib/helpers');
-var models = require('./lib/models');
 var route = require('./lib/route');
+var User = require('./lib/models/user');
+
 
 var app = express();
 var running = false;
@@ -14,7 +15,7 @@ var running = false;
 
 function sessionUser(req, res, next) {
     req.session.user = req.session.user &&
-        new models.User(req.session.user.attributes);
+        new User(req.session.user);
     res.locals.user = req.session.user;
     next();
 }
@@ -40,7 +41,7 @@ exports.run = function (callback) {
     if (running) {
         return callback()
     }
-    db.init(null, function (err) {
+    monster.initialize(config, function (err) {
         if (err) return callback(err);
         else {
             console.log('Server is listening on port ' + config.port);

@@ -14,6 +14,10 @@ describe('User', function () {
     });
 
     describe('constructor', function () {
+        it('should be valid', function () {
+            expect(user.validate()).not.to.exist;
+        });
+
         it('should be invalid without _id', function () {
             user.unset('_id');
             user.validate().should.exist;
