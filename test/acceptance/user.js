@@ -16,6 +16,13 @@ describe('user', function () {
 
     describe('/users/new', function () {
         var scope, browser;
+        var ash = {
+            name: 'Ash Ketchum',
+            email: 'ash.ketchum@pallettown.com',
+            _id: 'pokefan',
+            passwd_hash: 'pikahash',
+            type: 'User',
+        };
 
         beforeEach(function (done) {
             scope = nock(url.format(config.url));
@@ -44,13 +51,7 @@ describe('user', function () {
                     body.passwd_hash = 'pikahash';
                     return JSON.stringify(body);
                 })
-                .put('/' + config.db + '/pokefan', JSON.stringify({
-                    name: 'Ash Ketchum',
-                    email: 'ash.ketchum@pallettown.com',
-                    _id: 'pokefan',
-                    passwd_hash: 'pikahash',
-                    type: 'User',
-                }))
+                .put('/' + config.db + '/pokefan', JSON.stringify(ash))
                 .reply(201, {
                     ok: true,
                     id: 'pokefan',
@@ -67,6 +68,71 @@ describe('user', function () {
                     done();
                 });
         });
+
+        it('should redirect to home page after user is created',
+           function (done) {
+               scope
+                   .filteringRequestBody(function (body) {
+                       body = JSON.parse(body);
+                       body.should.have.property('passwd_hash');
+                       body.passwd_hash = 'pikahash';
+                       return JSON.stringify(body);
+                   })
+                   .put('/' + config.db + '/pokefan', JSON.stringify(ash))
+                   .reply(201, {
+                       ok: true,
+                       id: 'pokefan',
+                       rev: 'rev',
+                   });
+               browser
+                   .fill('Name', 'Ash Ketchum')
+                   .fill('Email', 'ash.ketchum@pallettown.com')
+                   .fill('Username', 'pokefan')
+                   .fill('Password', 'pikapass')
+                   .fill('Confirm password', 'pikapass')
+                   .pressButton('Submit', function () {
+                       browser.redirected.should.be.true;
+                       browser.location.pathname.should.equal('/');
+                       done();
+                   });
+           });
+
+        it('should log user in after creation',
+           function (done) {
+               scope
+                   .filteringRequestBody(function (body) {
+                       if (body) {
+                           body = JSON.parse(body);
+                           body.should.have.property('passwd_hash');
+                           body.passwd_hash = 'pikahash';
+                           return JSON.stringify(body);
+                       }
+                   })
+                   .put('/' + config.db + '/pokefan', JSON.stringify({
+                       name: 'Ash Ketchum',
+                       email: 'ash.ketchum@pallettown.com',
+                       _id: 'pokefan',
+                       passwd_hash: 'pikahash',
+                       type: 'User',
+                   }))
+                   .reply(201, {
+                       ok: true,
+                       id: 'pokefan',
+                       rev: 'rev',
+                   })
+                   .get('/' + config.db + '/pokefan')
+                   .reply(200, JSON.stringify(ash));
+               browser
+                   .fill('Name', 'Ash Ketchum')
+                   .fill('Email', 'ash.ketchum@pallettown.com')
+                   .fill('Username', 'pokefan')
+                   .fill('Password', 'pikapass')
+                   .fill('Confirm password', 'pikapass')
+                   .pressButton('Submit', function () {
+                       browser.text('body').should.contain('Welcome, Ash Ketchum!');
+                       done();
+                   });
+           });
 
         it('should not create new user when model is invalid', function (done) {
             scope.put('/' + config.db + '/pokefan').reply(201);
