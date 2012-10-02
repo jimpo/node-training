@@ -78,3 +78,4 @@ You are free to add any configuration parameters you require.
 - [Jade](https://github.com/visionmedia/jade)
 - [Stylus](http://learnboost.github.com/stylus/)
 - [Couch Monster](https://github.com/jep37/couch-monster)
+- [Mocha Testing Framework](http://visionmedia.github.com/mocha/)
