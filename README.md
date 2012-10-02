@@ -4,13 +4,13 @@
 
 The actual project is to create a calendar system on top of this basic application. You will want to create some sort of Event model and have some routes to submit events and view a listing of events or some sort of calendar view html. For example, you might consider the following routes to follow a somewhat RESTful architecture:
 
-`GET`    /event?view=<calendar view style> -- show calendar of events
-`GET`    /event/:event-id                  -- show event
-`GET`    /event/new                        -- form to create new event
-`POST`   /event                            -- submit new event route
-`DELETE` /event/:event-id                  -- delete event
-`GET`    /event/:event-id/edit             -- form to edit event
-`PUT`    /event/:event-id                  -- update event
+  `GET`    /event?view=<calendar view style> -- show calendar of events
+  `GET`    /event/:event-id                  -- show event
+  `GET`    /event/new                        -- form to create new event
+  `POST`   /event                            -- submit new event route
+  `DELETE` /event/:event-id                  -- delete event
+  `GET`    /event/:event-id/edit             -- form to edit event
+  `PUT`    /event/:event-id                  -- update event
 
 ## Getting Started
 
@@ -23,25 +23,46 @@ The actual project is to create a calendar system on top of this basic applicati
 - Clone the forked repository
 - `$ make install`
 - `$ make run`
+- Create the [`config.js`](#configuration) file
 - Check your browser at `http://localhost:4000` for the application
 - Start coding 8)
 
 ## Application Architecture
 
-`server.js`      -- This file is the main executable that creates and starts the application. Keep it small.
-`lib/`
-  `route.js`     -- All application routing goes here.
-  `helpers.js`   -- Helper functions defined here are available in the Jade template engine.
-  `models/`      -- All Couch Monster models are defined in separate modules in this directory.
-  `controllers/` -- Each controller should have a different resource.
-  `util/`        -- Utility functions.
-`test/           -- Tests go in here. Tests are written with Mocha.
-  `unit/`
-  `acceptance/`
-`Makefile`       -- A Makefile with the targets `install`, `run`, `test-unit`, and `test-acceptance`.
-`package.json`   -- Node.js package file. List all npm dependencies here.
+  `server.js`      -- This file is the main executable that creates and starts the application. Keep it small.
+  `config.js`      -- This stores the [configuration](#configuration) variables. It should not be added to the repository.
+  `lib/`
+    `route.js`     -- All application routing goes here.
+    `helpers.js`   -- Helper functions defined here are available in the Jade template engine.
+    `models/`      -- All Couch Monster models are defined in separate modules in this directory.
+    `controllers/` -- Each controller should have a different resource.
+    `util/`        -- Utility functions.
+  `test/           -- Tests go in here. Tests are written with Mocha.
+    `unit/`
+    `acceptance/`
+  `Makefile`       -- A Makefile with the targets `install`, `run`, `test-unit`, and `test-acceptance`.
+  `package.json`   -- Node.js package file. List all npm dependencies here.
 
 Testing, both acceptance and unit, is *highly* encouraged, but not required. It can definitely get annoying to write tests, but it is worth it.
+
+## Configuration
+
+The `config.js` file should be filled out like so:
+
+``` js
+module.exports = {
+    url: {
+        auth: 'username:password',
+        host: 'my.couchinstance.com',
+        port: 443,
+        protocol: 'https',
+    },
+    db: 'my-database-name',
+    port: 4000,
+};
+```
+
+You are free to add any configuration parameters you require.
 
 ## Resources
 
