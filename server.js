@@ -1,7 +1,7 @@
 'use strict';
 
 var express = require('express');
-var monster = require('couch-monster');
+var mongoose = require('mongoose');
 
 var config = require('./config');
 var helpers = require('./lib/helpers');
@@ -41,14 +41,13 @@ exports.run = function (callback) {
     if (running) {
         return callback()
     }
-    monster.initialize(config, function (err) {
-        if (err) return callback(err);
-        else {
-            console.log('Server is listening on port ' + config.port);
-            app.listen(config.port);
-            running = true;
-            callback();
-        }
+    var db = mongoose.createConnection(config.db);
+    db.on('error', console.error.bind(console, 'connection error:'));
+    db.once('open', function () {
+        console.log('Server is listening on port ' + config.port);
+        app.listen(config.port);
+        running = true;
+        callback();
     });
 };
 
