@@ -15,7 +15,7 @@ var running = false;
 
 function sessionUser(req, res, next) {
     req.session.user = req.session.user &&
-        new User(req.session.user);
+        new User({username: req.session.user});
     res.locals.user = req.session.user;
     next();
 }
