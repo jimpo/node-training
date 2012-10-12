@@ -41,9 +41,10 @@ exports.run = function (callback) {
     if (running) {
         return callback()
     }
-    var db = mongoose.createConnection(config.db);
-    db.on('error', console.error.bind(console, 'connection error:'));
-    db.once('open', function () {
+    mongoose.connect(config.db);
+    mongoose.connection.on(
+        'error', console.error.bind(console, 'connection error:'));
+    mongoose.connection.once('open', function () {
         console.log('Server is listening on port ' + config.port);
         app.listen(config.port);
         running = true;
