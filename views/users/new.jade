@@ -8,31 +8,31 @@ block content
       .alert.alert-error
         ul
           - each error in errors
-            li= capitalize(error)
+            li= error.message
 
     input(type='hidden', name='_csrf', value=token)
 
-    .control-group
+    .control-group(class=(errors && 'name' in errors ? "error" : null))
       label.control-label(for='name') Name
       .controls
         input#name(type='text', name='doc[name]', value=doc.name)
 
-    .control-group
+    .control-group(class=(errors && 'email' in errors ? "error" : null))
       label.control-label(for='email') Email
       .controls
         input#email(type='text', name='doc[email]', value=doc.email)
 
-    .control-group
+    .control-group(class=(errors && 'username' in errors ? "error" : null))
       label.control-label(for='username') Username
       .controls
         input#username(type='text', name='doc[username]', value=doc.username)
 
-    .control-group
+    .control-group(class=(errors && 'passwd' in errors ? "error" : null))
       label.control-label(for='passwd') Password
       .controls
         input#passwd(type='password', name='passwd')
 
-    .control-group
+    .control-group(class=(errors && 'passwd' in errors ? "error" : null))
       label.control-label(for='passwd_confirm') Confirm password
       .controls
         input#passwd_confirm(type='password', name='passwd_confirm')
