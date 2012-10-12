@@ -34,7 +34,7 @@ The actual project is to create a calendar system on top of this basic applicati
 - `lib/`
 -   `route.js`     -- All application routing goes here.
 -   `helpers.js`   -- Helper functions defined here are available in the Jade template engine.
--   `models/`      -- All Couch Monster models are defined in separate modules in this directory.
+-   `models/`      -- All Mongoose models are defined in separate modules in this directory.
 -   `controllers/` -- Each controller should have a different resource.
 -   `util/`        -- Utility functions.
 - `test/           -- Tests go in here. Tests are written with Mocha.
@@ -51,13 +51,7 @@ The `config.js` file should be filled out like so:
 
 ``` js
 module.exports = {
-    url: {
-        auth: 'username:password',
-        host: 'my.couchinstance.com',
-        port: 443,
-        protocol: 'https',
-    },
-    db: 'my-database-name',
+    db: 'mongodb://username:pass@mongo.example.com:port/database',
     port: 4000,
 };
 ```
@@ -73,9 +67,9 @@ You are free to add any configuration parameters you require.
 - [jQuery](http://www.jquery.com)
 - [Node.js](http://nodejs.org/)
 - [Node.js Tutorial](http://nodemanual.org/latest/)
-- [CouchDB](http://wiki.apache.org/couchdb/)
+- [MongoDB](http://www.mongodb.org/display/DOCS/Tutorial)
 - [Express](http://expressjs.com/)
 - [Jade](https://github.com/visionmedia/jade)
 - [Stylus](http://learnboost.github.com/stylus/)
-- [Couch Monster](https://github.com/jep37/couch-monster)
+- [Mongoose](http://mongoosejs.com/)
 - [Mocha Testing Framework](http://visionmedia.github.com/mocha/)
