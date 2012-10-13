@@ -3,7 +3,7 @@ extends layout
 block content
   h1 Welcome
     - if (user)
-      | , #{user.get('name')}!
+      | , #{user.name}!
   - if (!user)
     p Click 
       a(href="/login") here

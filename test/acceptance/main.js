@@ -2,8 +2,9 @@
 
 var Browser = require('zombie');
 var errs = require('errs');
-var nock = require('nock');
 var url = require('url');
+
+var User = require('models/user');
 
 var SUCCESS_CODE = 200;
 // Valid bcrypt hash for password 'pikapass'
@@ -40,10 +41,9 @@ describe('main not logged in', function () {
     });
 
     describe('/login', function () {
-        var scope, browser;
+        var browser;
 
         beforeEach(function (done) {
-            scope = nock(url.format(config.url));
             Browser.visit(fullUrl('/login?redirect=/after/path'),
                           function (err, _browser) {
                               browser = _browser;
@@ -71,12 +71,13 @@ describe('main not logged in', function () {
         });
 
         it('should require password to submit', function (done) {
-            browser.pressButton('Log In', function () {
-                var errors = browser.text('.alert-error');
-                expect(errors).to.exist;
-                errors.should.contain('Please enter password');
-                done();
-            });
+            browser.fill('Username', 'pokefan')
+                .pressButton('Log In', function () {
+                    var errors = browser.text('.alert-error');
+                    expect(errors).to.exist;
+                    errors.should.contain('Please enter password');
+                    done();
+                });
         });
 
         it('should fill in username on failure', function (done) {
@@ -97,66 +98,54 @@ describe('main not logged in', function () {
         });
 
         it("should fail if user doesn't exist", function (done) {
-            scope
-                .get('/' + config.db + '/pokefan')
-                .reply(404, '{"error":"not_found","reason":"missing"}');
+            sinon.stub(User, 'findOne')
+                .withArgs({username: 'pokefan'})
+                .yields();
             browser
                 .fill('Username', 'pokefan')
                 .fill('Password', 'pikapass')
                 .pressButton('Log In', function () {
                     browser.text('.alert-error').should.contain(
                         'User "pokefan" does not exist');
+                    User.findOne.restore();
                     done();
                 });
         });
 
         it("should fail if password is incorrect", function (done) {
-              var user = {
-                _id: 'pokefan',
-                _rev: 'rev',
-                passwd_hash: PASS_HASH,
-            };
-            scope
-                .get('/' + config.db + '/pokefan')
-                .reply(200, JSON.stringify(user));
+            sinon.stub(User, 'findOne')
+                .withArgs({username: 'pokefan'})
+                .yields(null, new User({passwd_hash: PASS_HASH}));
             browser
                 .fill('Username', 'pokefan')
                 .fill('Password', 'wrong_pass')
                 .pressButton('Log In', function () {
                     browser.text('.alert-error').should.contain(
-                        'Password did not match')
+                        'Password did not match');
+                    User.findOne.restore();
                     done();
                 });
         });
 
         it("should redirect to specified url after login", function (done) {
-            var user = {
-                _id: 'pokefan',
-                _rev: 'rev',
-                passwd_hash: PASS_HASH,
-            };
-            scope
-                .get('/' + config.db + '/pokefan')
-                .reply(200, JSON.stringify(user));
+            sinon.stub(User, 'findOne')
+                .withArgs({username: 'pokefan'})
+                .yields(null, new User({passwd_hash: PASS_HASH}));
             browser
                 .fill('Username', 'pokefan')
                 .fill('Password', 'pikapass')
                 .pressButton('Log In', function () {
                     browser.redirected.should.be.true;
                     browser.location.pathname.should.equal('/after/path');
+                    User.findOne.restore();
                     done();
                 });
         });
 
         it('should redirect to home page if no redirect', function (done) {
-            var user = {
-                _id: 'pokefan',
-                _rev: 'rev',
-                passwd_hash: PASS_HASH,
-            };
-            scope
-                .get('/' + config.db + '/pokefan')
-                .reply(200, JSON.stringify(user));
+            sinon.stub(User, 'findOne')
+                .withArgs({username: 'pokefan'})
+                .yields(null, new User({passwd_hash: PASS_HASH}));
             Browser.visit(fullUrl('/login'), function (err, browser) {
                 expect(err).not.to.exist;
                 browser
@@ -165,6 +154,7 @@ describe('main not logged in', function () {
                     .pressButton('Log In', function () {
                         browser.redirected.should.be.true;
                         browser.location.pathname.should.equal('/');
+                        User.findOne.restore();
                         done();
                     });
             });
@@ -174,8 +164,7 @@ describe('main not logged in', function () {
 
 describe('main logged in', function () {
     var user = {
-        _id: 'pokefan',
-        _rev: 'rev',
+        username: 'pokefan',
         name: 'Ash Ketchum',
         email: 'ash.ketchum@pallettown.com',
         type: 'User',
@@ -183,12 +172,9 @@ describe('main logged in', function () {
     };
 
     var logIn = function (path, callback) {
-        var scope = nock(url.format(config.url));
-        scope
-            .get('/' + config.db + '/pokefan')
-            .reply(200, JSON.stringify(user))
-            .get('/' + config.db + '/pokefan')
-            .reply(200, JSON.stringify(user));
+        sinon.stub(User, 'findOne')
+            .withArgs({username: 'pokefan'})
+            .yields(null, new User(user));
         Browser.visit(
             fullUrl('/login?redirect=' + path), function (err, browser) {
                 if (err) return callback(err);
@@ -198,17 +184,17 @@ describe('main logged in', function () {
                     .pressButton('Log In', function () {
                         browser.redirected.should.be.true;
                         browser.location.pathname.should.equal('/');
-                        callback(null, scope, browser);
+                        User.findOne.restore();
+                        callback(null, browser);
                     });
             });
     };
 
     describe('/', function () {
-        var scope, browser;
+        var browser;
 
         beforeEach(function (done) {
-            logIn('/', function (err, _scope, _browser) {
-                scope = _scope;
+            logIn('/', function (err, _browser) {
                 browser = _browser;
                 done(err);
             });
@@ -227,11 +213,10 @@ describe('main logged in', function () {
     });
 
     describe('/logout', function () {
-        var scope, browser;
+        var browser;
 
         beforeEach(function (done) {
-            logIn('/logout', function (err, _scope, _browser) {
-                scope = _scope;
+            logIn('/logout', function (err, _browser) {
                 browser = _browser;
                 done(err);
             });
