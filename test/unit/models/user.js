@@ -7,43 +7,56 @@ describe('User', function () {
     var user;
 
     beforeEach(function () {
-        user = new User('pikachu', {
+        user = new User({
+            username: 'pikachu',
             name: 'Pikachu',
             email: 'pikachu@pika.com',
+            passwd_hash: 'pikahash',
         });
     });
 
     describe('constructor', function () {
-        it('should be valid', function () {
-            expect(user.validate()).not.to.exist;
+        it('should be valid', function (done) {
+            user.validate(done);
         });
 
-        it('should be invalid without _id', function () {
-            user.unset('_id');
-            user.validate().should.exist;
-            //user.validate().should.deep.equal(['Username is required']);
+        it('should be invalid without username', function (done) {
+            user.username = undefined;
+            user.validate(function (err) {
+                err.should.be.an.instanceOf(Error);
+                err.name.should.equal('ValidationError');
+                err.errors.should.have.property('username');
+                done();
+            });
         });
 
-        it('should be invalid without name', function () {
-            user.set('name', '');
-            user.validate().should.exist;
-            //user.validate().should.deep.equal(['Name is required']);
+        it('should be invalid without name', function (done) {
+            user.name = undefined;
+            user.validate(function (err) {
+                err.should.be.an.instanceOf(Error);
+                err.name.should.equal('ValidationError');
+                err.errors.should.have.property('name');
+                done();
+            });
         });
 
-        it('should be invalid with bad email format', function () {
-            user.set('email', 'not an email');
-            user.validate().should.exist;
-            //user.validate().should.be.ok;
+        it('should be invalid with bad email format', function (done) {
+            user.email = 'not an email';
+            user.validate(function (err) {
+                err.should.be.an.instanceOf(Error);
+                err.name.should.equal('ValidationError');
+                err.errors.should.have.property('email');
+                done();
+            });
         });
     });
 
     describe('#setPassword()', function () {
         it("should set 'passwd_hash' attribute", function (done) {
-            user.has('passwd_hash').should.be.false;
+            user.passwd_hash = undefined;
             user.setPassword('pikapass', function (err) {
-                expect(err).not.to.exist;
-                user.has('passwd_hash').should.be.true;
-                done();
+                expect(user.passwd_hash).to.exist;
+                done(err);
             });
         });
     });
@@ -55,17 +68,15 @@ describe('User', function () {
 
         it('should match correct password', function (done) {
             user.matchesPassword('pikapass', function (err, match) {
-                expect(err).not.to.exist;
                 match.should.be.ok;
-                done();
+                done(err);
             });
         });
 
         it('should not match incorrect password', function (done) {
             user.matchesPassword('wrong_pass', function (err, match) {
-                expect(err).not.to.exist;
                 match.should.not.be.ok;
-                done();
+                done(err);
             });
         });
     });
